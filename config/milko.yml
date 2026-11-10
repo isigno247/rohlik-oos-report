@@ -1,0 +1,32 @@
+# OOS monitoring config — Milko
+# Footprint from onboarding 2026-09-25: user-stated, all 3 SKUs carried in all 5 zones
+# (not yet screenshot-verified per zone).
+
+client: Milko
+report_title: "Milko — Rohlik.cz availability report"
+report_slug: milko
+footer: "POS Media Europe s.r.o. · Automated daily report · Contact: mai.ngoc.tan@pos-media.eu"
+
+canary_sku: 1303581          # weak canary (units capped at 50, saleId null); zone switch is confirmed via checkout address
+restore_address_id: 11759356 # Vrchlabí pickup point
+stale_oos_threshold_days: 14
+low_stock_threshold: 5
+
+footprint:
+  established: "2026-09-25"
+  source: "a user-stated listing for the 3 tracked SKUs (carried in all 5 zones), not yet verified per zone with a portfolio screenshot"
+
+zones:
+  - {key: chrastany,       name: "Chrášťany",       address_id: 6011285}
+  - {key: praha_liboc,     name: "Praha Liboc",     address_id: 5495707}
+  - {key: horni_pocernice, name: "Horní Počernice", address_id: 5698003}
+  - {key: brno,            name: "Brno",            address_id: 5530325}
+  - {key: ostrava,         name: "Ostrava",         address_id: 10947259}
+
+brands:
+  - name: Milko
+    related_name_matches: []
+    skus:
+      - {id: 1306511, name: "Milko Tvaroh polotučný (250 g)"}
+      - {id: 1303581, name: "Milko Tvaroh měkký odtučněný (250 g)"}
+      - {id: 1303585, name: "Milko Tvaroh tučný (250 g)"}

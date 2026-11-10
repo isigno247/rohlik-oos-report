@@ -1,0 +1,44 @@
+# OOS monitoring config — Polaris
+# Footprint = per-SKU listing truth. A SKU is carried in every zone EXCEPT those in
+# `not_listed_in`. Never derived from search. Change it only on a deliberate baseline refresh,
+# and update `footprint.established` when you do.
+
+client: Polaris
+report_title: "Polaris — Rohlik.cz availability report"
+report_slug: polaris
+footer: "POS Media Europe s.r.o. · Automated daily report · Contact: mai.ngoc.tan@pos-media.eu"
+
+canary_sku: 1423451
+restore_address_id: 11759356        # Vrchlabí pickup point
+stale_oos_threshold_days: 14
+low_stock_threshold: 5              # fixed by spec, do not change
+
+footprint:
+  established: "2026-09-21"
+  source: "a user-supplied per-zone carried/not-carried map for the 14 tracked SKUs, cross-checked against live measurement at the time"
+
+zones:                              # order = column order in the report
+  - {key: chrastany,       name: "Chrášťany",       address_id: 6011285}
+  - {key: praha_liboc,     name: "Praha Liboc",     address_id: 5495707}
+  - {key: horni_pocernice, name: "Horní Počernice", address_id: 5698003}
+  - {key: brno,            name: "Brno",            address_id: 5530325}
+  - {key: ostrava,         name: "Ostrava",         address_id: 10947259}
+
+brands:
+  - name: Polaris
+    related_name_matches: []        # look-alikes under another brand field, needing a decision
+    skus:                           # order = row order in the report
+      - {id: 1454631, name: "Polaris Single Protein Paté konzerva pro psy kuřecí (400 g)"}
+      - {id: 1454635, name: "Polaris Single Protein Paté konzerva pro psy krůtí (400 g)"}
+      - {id: 1423451, name: "Polaris Adult All Breed granule, hovězí a krůtí (2,5 kg)"}
+      - {id: 1423458, name: "Polaris Adult Small Breed granule, losos a krůtí (5 kg)"}
+      - {id: 1423448, name: "Polaris Junior Large Breed granule, jehněčí a losos (2,5 kg)"}
+      - {id: 1454634, name: "Polaris Single Protein Paté konzerva pro psy jehněčí (400 g)", not_listed_in: [brno, ostrava]}
+      - {id: 1474800, name: "Polaris Imunity Small & Mini, krůtí (0,75 kg)",               not_listed_in: [brno, ostrava]}
+      - {id: 1423452, name: "Polaris Adult All Breed granule, hovězí a krůtí (12 kg)",      not_listed_in: [brno, ostrava]}
+      - {id: 1423454, name: "Polaris Adult All Breed granule, kachní a krůtí (12 kg)",      not_listed_in: [brno, ostrava]}
+      - {id: 1467999, name: "Polaris All Breed granule, jehněčí a rýže (12 kg)",            not_listed_in: [brno, ostrava]}
+      - {id: 1423457, name: "Polaris Adult Small Breed granule, losos a jehněčí (5 kg)",    not_listed_in: [brno, ostrava]}
+      - {id: 1423456, name: "Polaris Adult All Breed granule, losos a krůtí (12 kg)",       not_listed_in: [brno, ostrava]}
+      - {id: 1474799, name: "Polaris Imunity Small & Mini, hovězí (0,75 kg)",               not_listed_in: [brno]}
+      - {id: 1474802, name: "Polaris Imunity Small & Mini, losos (0,75 kg)",                not_listed_in: [chrastany, praha_liboc, horni_pocernice, ostrava]}
