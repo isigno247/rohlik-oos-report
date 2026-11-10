@@ -1,0 +1,80 @@
+name: Rohlik OOS daily report
+
+on:
+  schedule:
+    - cron: "30 4 * * *"        # 04:30 UTC = 05:30 CET / 06:30 CEST (GitHub may start it a few minutes late)
+  workflow_dispatch:             # "Run workflow" button for manual runs
+    inputs:
+      client:
+        description: "Client config name (config/<name>.yml), or 'all'"
+        default: "all"
+        required: true
+
+permissions:
+  contents: write                # commit the report + state back to the repo
+
+concurrency:                     # never two runs switching the same Rohlik account's address at once
+  group: rohlik-account
+  cancel-in-progress: false
+
+jobs:
+  report:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      CLIENT: ${{ inputs.client || 'all' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install pinned dependencies
+        run: pip install -r requirements.txt
+
+      - name: Self-test against the local mock (no Rohlik calls)
+        run: |
+          python tests/mock_rohlik_mcp.py & MOCK_PID=$!; sleep 5
+          cp -r state /tmp/state_real; cp -r reports /tmp/reports_real
+          ROHLIK_MCP_URL=http://127.0.0.1:8765/mcp python -m oos.run --client polaris
+          rm -rf state reports; cp -r /tmp/state_real state; cp -r /tmp/reports_real reports
+          kill $MOCK_PID || true
+
+      - name: Measure and build report
+        env:
+          RHL_EMAIL: ${{ secrets.RHL_EMAIL }}
+          RHL_PASS: ${{ secrets.RHL_PASS }}
+        # Clients run one after another (same Rohlik account). One failing client does not stop
+        # the others, but the job still ends red so GitHub e-mails you.
+        run: |
+          if [ "$CLIENT" = "all" ]; then CLIENTS=$(ls config/*.yml | xargs -n1 basename | sed 's/\.yml$//'); else CLIENTS="$CLIENT"; fi
+          FAILED=""
+          for c in $CLIENTS; do
+            echo "::group::$c"
+            python -m oos.run --client "$c" || FAILED="$FAILED $c"
+            [ -f failed_report.html ] && mv failed_report.html "failed_report_$c.html"
+            echo "::endgroup::"
+          done
+          if [ -n "$FAILED" ]; then echo "::error::Self-checks or measurement failed for:$FAILED"; exit 1; fi
+
+      - name: Commit report and state
+        if: always()
+        run: |
+          git config user.name  "oos-bot"
+          git config user.email "oos-bot@users.noreply.github.com"
+          git add reports state
+          git diff --cached --quiet || git commit -m "OOS reports $(date -u +%F)"
+          git push
+
+      - name: Upload report as downloadable artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oos-reports-${{ github.run_number }}
+          path: |
+            reports/*/latest.html
+            failed_report_*.html
+          if-no-files-found: ignore
+          retention-days: 30
