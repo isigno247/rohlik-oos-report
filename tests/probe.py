@@ -13,7 +13,7 @@ class S:
         self.jar = http.cookiejar.CookieJar()
         self.op = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(self.jar))
         self.h = {"User-Agent": UA, "Accept": "application/json", "X-Origin": "WEB",
-                  "Accept-Language": "cs-CZ,cs;q=0.9", "Referer": BASE + "/"}
+                  "Accept-Language": "cs-CZ,cs;q=0.9"}
         self.h["X-Custom-SessionId"] = sid_hdr or str(uuid.uuid4())
         if udid:
             self.set_cookie("udid", str(uuid.uuid4()))
@@ -58,9 +58,12 @@ class S:
         s0 = (sug if isinstance(sug, list) else (sug or {}).get("data") or [None])[0]
         st2, conf = self.req("POST", "/api/v4/address/autocomplete/confirm", body=s0)
         print(f"   autocomplete {st} confirm {st2} -> wh={conf and conf.get('warehouseId')} zone={conf and conf.get('zoneId')}")
+        if not conf:
+            return None, None
         aid, zone = conf["id"], conf.get("zoneId")
         a, ca = self.req("POST", "/services/frontend-service/delivery-address/check", body={"addressId": aid})
         b, cb = self.req("POST", "/services/frontend-service/delivery-address/check", body={"addressId": aid, "zoneId": zone})
+        print("   cookies after checks:", self.names())
         print(f"   check1 {a} keys={list((ca or {}).get('data') or {})[:6]}  check2 {b} keys={list((cb or {}).get('data') or {})[:6]}")
         if extra:
             r1, _ = self.req("GET", "/services/frontend-service/timeslots-api/delivery-information", {"addressId": aid})
