@@ -43,7 +43,7 @@ def parse(date, text):
                                       "oos": int(m.group(4)), "not_listed": int(m.group(5))}
     mt = re.search(r"measured\s+(\d{1,2}:\d{2})", text)
     oos, last_sku = [], None
-    for ln in section(lines, r"^\s*(Out of stock|OUT OF STOCK)( \(listed positions only\))?\s*$",
+    for ln in section(lines, r"^\s*(Out of stock|OUT OF STOCK)( \(listed positions only\)| — on promotion)?\s*$",
                       [r"^\s*(Low stock|LOW STOCK)", r"POS Media Czech Republic", r"^\s*(Method|METHOD)"]):
         m0 = re.match(r"^\s*-?\s*(14\d{5})\b", ln)
         if m0:
@@ -65,6 +65,9 @@ def parse(date, text):
         m = re.search(r"Warehouse:\s*(" + "|".join(map(re.escape, WH)) + r")\s*\|", ln)
         if m and last_sku:
             oos.append({"sku": last_sku, "zone": KEY[m.group(1)], "restock": None, "days_at_zero": None})
+    if any(ln.strip() == "Out of stock — on promotion" for ln in lines):
+        for o in oos:
+            o["promo"] = True
     low = []
     for ln in section(lines, r"^\s*(Low stock|LOW STOCK)( \(.*\))?\s*$",
                       [r"POS Media Czech Republic", r"^\s*(Method|METHOD)", r"^\s*(Notes|NOTES)"]):
