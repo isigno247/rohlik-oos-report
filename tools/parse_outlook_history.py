@@ -54,7 +54,8 @@ def parse(date, text):
             rest = cells[wj + 2] if len(cells) > wj + 2 else None
             days = cells[wj + 3] if len(cells) > wj + 3 else ""
             oos.append({"sku": last_sku, "zone": KEY[cells[wj]], "restock": rest or None,
-                        "days_at_zero": int(days) if days.isdigit() else None})
+                        "days_at_zero": int(days) if days.isdigit() else None,
+                        "promo": "PROMOTION" in ln.upper()})
             continue
         m = re.match(r"^\s*-\s*(14\d{5}).*?--\s*(" + "|".join(map(re.escape, WH)) + r"):.*?restock\s+([\d.]+)?.*?(\d+)\s*day", ln)
         if m:
