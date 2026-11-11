@@ -57,6 +57,16 @@ tr.sku{cursor:pointer}tr.sku:hover{background:#fafbfb}
 .sum h3{margin:0 0 6px;font-size:15px;color:var(--slate)}.sum p{margin:0;font-size:14px;line-height:1.6}
 .pb{display:inline-block;font-size:10px;font-weight:bold;color:#fff;padding:1px 5px;margin-top:3px}
 .pt-sale{background:var(--red)}.pt-multipack{background:#7b3fa0}.pt-longtermAction{background:#2f7fbf}.pt-expiration{background:#8a6d3b}.pt-premium{background:#9aa0a6}
+.pr{display:flex;align-items:center;gap:9px}.pr img{width:38px;height:38px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:4px;flex:none}
+.pr a{color:var(--ink);text-decoration:none}.pr a:hover{color:var(--orange);text-decoration:underline}
+.zc{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;background:#f4f5f6;border-left:4px solid var(--c);white-space:nowrap}
+.chip{display:inline-block;font-size:11px;font-weight:bold;padding:2px 8px;border-radius:10px;white-space:nowrap}
+.ch-today{background:#e3f6e3;color:#087a08}.ch-date{background:#fff1d9;color:#a86400}.ch-none{background:#eef0f2;color:#6b737b}
+.dbar{display:flex;align-items:center;gap:8px;min-width:130px}.dbar i{display:block;height:8px;border-radius:4px;background:#eef0f2;flex:1;position:relative;overflow:hidden}
+.dbar i b{position:absolute;left:0;top:0;bottom:0;border-radius:4px}.dbar span{font-weight:bold;min-width:52px;font-size:12px}
+.dots{letter-spacing:2px;font-size:14px;white-space:nowrap}.dots b{color:#fab219}.dots i{color:#dfe2e5;font-style:normal}
+td.oosc{background:#fdecec}td.nlc{background:repeating-linear-gradient(135deg,#f6f7f8,#f6f7f8 6px,#eef0f2 6px,#eef0f2 12px)}
+.up2{display:block;font-size:10px;color:#a86400;font-weight:bold}
 footer{font-size:10px;color:var(--slate);border-top:1px solid var(--line);padding-top:12px;margin-top:30px}
 </style>
 </head>
@@ -126,9 +136,14 @@ const pbadge=x=>`<span class="pb pt-${x[0]}">${plabel(x)}</span>`;
 const gen=n=>n===1?'pozice':'pozic';
 const vypr=n=>n===1?'vyprodaná pozice':n>=2&&n<=4?'vyprodané pozice':'vyprodaných pozic';
 const join=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' a '+a[a.length-1];
-fetch('data/polaris.json',{cache:'no-store'}).then(r=>r.json()).then(D=>{
+Promise.all([fetch('data/polaris.json',{cache:'no-store'}).then(r=>r.json()),fetch('data/products.json',{cache:'no-store'}).then(r=>r.ok?r.json():{}).catch(()=>({}))]).then(([D,IMG])=>{
  const days=D.days, Z=D.zones, zn=Object.fromEntries(Z.map(z=>[z.key,z.name])), name=s=>D.skus[s]||s;
  const idx={};days.forEach((d,i)=>idx[d.date]=i);
+ const prod=s=>{const m=IMG[s]||{};return `<span class="pr">${m.img?`<img src="${m.img}" alt="" loading="lazy">`:''}<a href="${m.url||'https://www.rohlik.cz/'+s}" target="_blank" rel="noopener">${name(s)}</a></span>`};
+ const zc=k=>`<span class="zc" style="--c:${COL[k]}">${zn[k]}</span>`;
+ const dots=u=>`<span class="dots" title="${u} ks">${'<b>●</b>'.repeat(Math.max(0,Math.min(5,u)))}${'<i>●</i>'.repeat(5-Math.max(0,Math.min(5,u)))}</span> <b style="color:#b57d00">${u} ks</b>`;
+ const rchip=(r,day)=>{if(!r)return '<span class="chip ch-none">neuvedeno</span>';if(/^\d{4}-/.test(r))return r<=day?'<span class="chip ch-today">dnes</span>':`<span class="chip ch-date">${fmt(r)}</span>`;if(/today|dnes/i.test(r))return '<span class="chip ch-today">dnes</span>';return `<span class="chip ch-date">${r}</span>`};
+ const dbar=n=>{if(!n)return '';const c=n>7?'#d03b3b':n>3?'#F19500':'#fab219';return `<span class="dbar"><span style="color:${c}">${dny(n)}</span><i><b style="width:${Math.min(100,n/21*100)}%;background:${c}"></b></i></span>`};
  const labels=[];for(let t=new Date(days[0].date+'T12:00');t<=new Date(days[days.length-1].date+'T12:00');t.setDate(t.getDate()+1))labels.push(t.toISOString().slice(0,10));
  let sel=days.length-1, range=0, fz='', fs='';
  $('sub').textContent=`Denní dostupnost ${Object.keys(D.skus).length} produktů v ${Z.length} skladech Rohlíku · ${days.length} měřených dní od ${full(days[0].date)}`;
@@ -183,10 +198,10 @@ fetch('data/polaris.json',{cache:'no-store'}).then(r=>r.json()).then(D=>{
   $('heat').innerHTML=h;
   const prevK=new Set((p?p.oos:[]).map(key)),curK=new Set(d.oos.map(key));
   const badge=o=>(o.promo?'<span class="badge">AKCE</span>':'')+(inCamp(o.sku,d.date).length?'<span class="badge o">KAMPAŇ</span>':'');
-  tbl('newoos',['SKU','Produkt','Sklad'],p?O.filter(o=>!prevK.has(key(o))).map(o=>[o.sku,name(o.sku)+badge(o),zn[o.zone]]):[],p?'Žádné – nic nově nevyprodáno.':'První měřený den.');
-  tbl('back',['SKU','Produkt','Sklad'],p?p.oos.filter(ok).filter(o=>!curK.has(key(o))).map(o=>[o.sku,name(o.sku),zn[o.zone]]):[],p?'Žádné.':'První měřený den.');
-  tbl('oos',['SKU','Produkt','Sklad','Naskladnění','Dní na nule'],O.slice().sort((a,b)=>(b.days_at_zero||0)-(a.days_at_zero||0)).map(o=>[o.sku,name(o.sku)+badge(o),zn[o.zone],o.restock?(/^\d{4}-/.test(o.restock)?fmt(o.restock):o.restock):'neuvedeno',o.days_at_zero??'']),'Žádné – všechny listované pozice skladem.');
-  tbl('low',['SKU','Produkt','Sklad','Kusů'],Lw.map(o=>[o.sku,name(o.sku),zn[o.zone],`<b style="color:#b57d00">${o.units}</b>`]),'Žádné.');
+  tbl('newoos',['SKU','Produkt','Sklad'],p?O.filter(o=>!prevK.has(key(o))).map(o=>[o.sku,prod(o.sku)+badge(o),zc(o.zone)]):[],p?'Žádné – nic nově nevyprodáno.':'První měřený den.');
+  tbl('back',['SKU','Produkt','Sklad'],p?p.oos.filter(ok).filter(o=>!curK.has(key(o))).map(o=>[o.sku,prod(o.sku),zc(o.zone)]):[],p?'Žádné.':'První měřený den.');
+  tbl('oos',['SKU','Produkt','Sklad','Naskladnění','Dní na nule'],O.slice().sort((a,b)=>(b.days_at_zero||0)-(a.days_at_zero||0)).map(o=>[o.sku,prod(o.sku)+badge(o),zc(o.zone),rchip(o.restock,d.date),dbar(o.days_at_zero)]),'Žádné – všechny listované pozice skladem.');
+  tbl('low',['SKU','Produkt','Sklad','Kusů'],Lw.slice().sort((a,b)=>a.units-b.units).map(o=>[o.sku,prod(o.sku),zc(o.zone),dots(o.units)]),'Žádné.');
   const pd=O.filter(o=>o.promo||inCamp(o.sku,d.date).length);let all=0;days.forEach(x=>x.oos.filter(ok).forEach(o=>{if(o.promo||inCamp(o.sku,x.date).length)all++}));
   $('promo').innerHTML=`<p style="margin:0 0 8px;font-size:12px">Vyprodané pozice v akci nebo v běžící kampani dne ${full(d.date)}: <b>${pd.length}</b> · za všech ${days.length} měřených dní celkem <b>${all}</b> pozic-dní.</p>`+
    (pd.length?'<table><tr><th>SKU</th><th>Produkt</th><th>Sklad</th><th>Proč na tom záleží</th></tr>'+pd.map(o=>`<tr><td>${o.sku}</td><td>${name(o.sku)}${badge(o)}</td><td>${zn[o.zone]}</td><td>${inCamp(o.sku,d.date).map(c=>'Běží kampaň „'+c.name+'“ – zákazník po kliknutí nemůže nakoupit').join('; ')||'Zobrazuje se akční cena, ale produkt nejde koupit'}</td></tr>`).join('')+'</table>':'')+
@@ -194,11 +209,12 @@ fetch('data/polaris.json',{cache:'no-store'}).then(r=>r.json()).then(D=>{
   // ---- ceny a akce
   const promoRows=[];
   if(d.pos){let t='<tr><th>SKU</th><th>Produkt</th>'+zonesF().map(z=>`<th>${z.name}</th>`).join('')+'</tr>';
-   skusF().forEach(sku=>{t+=`<tr><td>${sku}</td><td>${name(sku)}</td>`+zonesF().map(z=>{const g=d.pos[sku]&&d.pos[sku][z.key];if(!g||g[0]==='N')return '<td><i class="note">nelistováno</i></td>';
-    const pr=(g[4]||[]).filter(x=>x[0]!=='premium');pr.forEach(x=>promoRows.push([sku,z,x,g]));const oosT=g[0]==='O'?'<br><span style="color:#d03b3b;font-size:11px">vyprodáno</span>':'';
-    return pr.length?`<td><b>${kc(pr[0][1])}</b> <s class="note">${kc(pr[0][2]||g[2])}</s><br>${pbadge(pr[0])}${oosT}</td>`:`<td>${kc(g[2])}${oosT}</td>`}).join('')+'</tr>'});
+   skusF().forEach(sku=>{const base=zonesF().map(z=>d.pos[sku]&&d.pos[sku][z.key]).filter(g=>g&&g[0]!=='N').map(g=>g[2]).filter(v=>v);const mn=Math.min(...base);
+    t+=`<tr><td>${sku}</td><td>${prod(sku)}</td>`+zonesF().map(z=>{const g=d.pos[sku]&&d.pos[sku][z.key];if(!g||g[0]==='N')return '<td class="nlc"><i class="note">nelistováno</i></td>';const diff=g[2]&&mn&&g[2]-mn>0.05?`<span class="up2">▲ +${num(+(g[2]-mn).toFixed(1))} Kč</span>`:'';
+    const pr=(g[4]||[]).filter(x=>x[0]!=='premium');pr.forEach(x=>promoRows.push([sku,z,x,g]));const oosT=g[0]==='O'?'<br><span style="color:#d03b3b;font-size:11px;font-weight:bold">vyprodáno</span>':'';const cl=g[0]==='O'?' class="oosc"':'';
+    return pr.length?`<td${cl}><b>${kc(pr[0][1])}</b> <s class="note">${kc(pr[0][2]||g[2])}</s><br>${pbadge(pr[0])}${oosT}</td>`:`<td${cl}>${kc(g[2])}${diff}${oosT}</td>`}).join('')+'</tr>'});
    $('prices').innerHTML=t;
-   tbl('promos',['SKU','Produkt','Sklad','Typ akce','Akční cena','Běžná cena','Platí do','Zásoba'],promoRows.map(([sku,z,x,g])=>[sku,name(sku),z.name,pbadge(x),'<b>'+kc(x[1])+'</b>',kc(x[2]||g[2]),x[5]?full(x[5]):'–',g[0]==='O'?'<b style="color:#d03b3b">vyprodáno</b>':(g[1]<=5?'<span style="color:#b57d00">'+g[1]+' ks</span>':'skladem')]),'Žádné aktivní akce.');
+   tbl('promos',['SKU','Produkt','Sklad','Typ akce','Akční cena','Běžná cena','Platí do','Zásoba'],promoRows.map(([sku,z,x,g])=>[sku,prod(sku),zc(z.key),pbadge(x),'<b>'+kc(x[1])+'</b>',kc(x[2]||g[2]),x[5]?full(x[5]):'–',g[0]==='O'?'<b style="color:#d03b3b">vyprodáno</b>':(g[1]<=5?'<span style="color:#b57d00">'+g[1]+' ks</span>':'skladem')]),'Žádné aktivní akce.');
    $('pricenote').textContent='Ceny jsou za kus. Multibuy = sleva platí při koupi uvedeného počtu kusů. Xtra (členské) ceny se nezapočítávají.';
   }else{$('prices').innerHTML='<tr><td class="note">Ceny a typy akcí se měří od 11.11.2026 – pro tento den nejsou k dispozici.</td></tr>';$('promos').innerHTML='';$('pricenote').textContent=''}
   // ---- manažerské shrnutí
@@ -218,13 +234,13 @@ fetch('data/polaris.json',{cache:'no-store'}).then(r=>r.json()).then(D=>{
   const SC={I:['#0ca30c','skladem'],O:['#d03b3b','vyprodáno'],N:['#c9cdd1','nelistováno']};
   let s='<tr><th>SKU</th><th>Produkt</th>'+zonesF().map(z=>`<th>${z.name}</th>`).join('')+'<th>Vyprodáno celkem</th></tr>';
   skusF().forEach(sku=>{const tot=days.reduce((a,x)=>a+x.oos.filter(o=>o.sku==sku&&(!fz||o.zone===fz)).length,0);
-   s+=`<tr class="sku" data-s="${sku}"><td>${sku}</td><td>${name(sku)} ▸</td>`+zonesF().map(z=>{const st=status(d,sku,z.key),lw=d.low.find(o=>o.sku==sku&&o.zone===z.key);const [c,t]=SC[st];return `<td><span class="st" style="background:${lw&&st==='I'?'#fab219':c}">${lw&&st==='I'?lw.units+' ks':t}</span></td>`}).join('')+`<td>${tot} pozic-dní</td></tr>`;
+   s+=`<tr class="sku" data-s="${sku}"><td>${sku}</td><td>${prod(sku).replace('</span>',' ▸</span>')}</td>`+zonesF().map(z=>{const st=status(d,sku,z.key),lw=d.low.find(o=>o.sku==sku&&o.zone===z.key);const [c,t]=SC[st];return `<td><span class="st" style="background:${lw&&st==='I'?'#fab219':c}">${lw&&st==='I'?lw.units+' ks':t}</span></td>`}).join('')+`<td>${tot} pozic-dní</td></tr>`;
    s+=`<tr id="h${sku}" style="display:${fs?'':'none'}"><td colspan="${zonesF().length+3}" style="background:#fafbfb">`+zonesF().filter(z=>!(D.nl[sku]||[]).includes(z.key)).map(z=>{let streak=0,best=0,n=0;const cells=labels.map(l=>{const x=days[idx[l]];if(!x)return '<span style="background:#e1e4e7" title="'+fmt(l)+': bez měření"></span>';const o=x.oos.some(q=>q.sku==sku&&q.zone===z.key);if(o){n++;streak++;best=Math.max(best,streak)}else streak=0;return `<span style="background:${o?'#d03b3b':'#0ca30c'}${l===d.date?';outline:2px solid #1C2529':''}" title="${fmt(l)}: ${o?'vyprodáno':'skladem'}"></span>`}).join('');
     return `<div style="display:flex;align-items:center;gap:10px;margin:3px 0"><span style="width:120px;font-size:12px">${z.name}</span><span class="strip">${cells}</span><span class="note">${dny(n)} vyprodáno · nejdelší výpadek ${dny(best)}</span></div>`}).join('')+'</td></tr>'});
   $('skus').innerHTML=s;
   document.querySelectorAll('tr.sku').forEach(r=>r.onclick=()=>{const x=$('h'+r.dataset.s);x.style.display=x.style.display==='none'?'':'none'});
   const cnt={};days.forEach(x=>x.oos.filter(ok).forEach(o=>{cnt[key(o)]=(cnt[key(o)]||0)+1}));
-  tbl('top',['SKU','Produkt','Sklad','Vyprodáno'],Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([k,n])=>{const [s2,z]=k.split('|');return [s2,name(s2),zn[z],`${dny(n)} z ${days.length} měřených`]}),'Žádné výpadky.');
+  tbl('top',['SKU','Produkt','Sklad','Vyprodáno'],Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([k,n])=>{const [s2,z]=k.split('|');return [s2,prod(s2),zc(z),dbar(n).replace(/<span style[^>]*>[^<]*<\/span>/,`<span>${dny(n)} z ${days.length}</span>`)]}),'Žádné výpadky.');
  }
  draw();
 }).catch(e=>{$('sub').textContent='Data se nepodařilo načíst: '+e});
