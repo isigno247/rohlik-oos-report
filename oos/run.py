@@ -14,7 +14,7 @@ import yaml
 from .checks import run_checks
 from .classify import build_notes, classify, new_state
 from .measure import run_measure
-from .report import render
+from .report2 import render
 
 ROOT = Path(__file__).resolve().parent.parent
 TZ = ZoneInfo("Europe/Prague")
@@ -39,7 +39,9 @@ def main() -> int:
     notes = build_notes(cfg, cls, prev, today, failed)
     meta = {"date_str": now.strftime("%d.%m.%Y"), "time_str": now.strftime("%H:%M ") + now.tzname(),
             "zone_status": {z["key"]: meas["zones"].get(z["key"], {}).get("status", "FAILED") for z in cfg["zones"]}}
-    html = render(cfg, cls, notes, meta, ROOT / "assets" / "pos-media-logo.png")
+    hist_file = ROOT / "docs" / "data" / f"{cfg['report_slug']}.json"
+    history = json.loads(hist_file.read_text(encoding="utf-8"))["days"] if hist_file.exists() else []
+    html = render(cfg, cls, notes, meta, ROOT / "assets" / "pos-media-logo.png", history, today)
     checks = run_checks(html, cfg, cls, meas)
 
     out_dir = ROOT / "reports" / cfg["report_slug"]

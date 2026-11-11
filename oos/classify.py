@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import re
-from datetime import date
+from datetime import date, timedelta
 
 IN, OOS, NL, UNV, FAIL = "in_stock", "out_of_stock", "not_listed", "unverified", "failed"
 
@@ -22,6 +22,29 @@ def restock_text(reason: str | None, iso: str | None, today: date) -> str | None
     if iso:
         return f"odhad {fmt_date(iso)}"
     return txt or None
+
+
+WD = {"po": 0, "út": 1, "ut": 1, "st": 2, "čt": 3, "ct": 3, "pá": 4, "pa": 4, "so": 5, "ne": 6}
+
+
+def restock_iso(reason: str | None, iso: str | None, today: date) -> str | None:
+    """Rohlik's restock hint as a date: explicit date, 'dnes', 'zítra' or a weekday ('ve čt.')."""
+    if iso:
+        return str(iso)[:10]
+    t = (reason or "").lower()
+    if "dnes" in t:
+        return today.isoformat()
+    if "zítra" in t or "zitra" in t:
+        return (today + timedelta(days=1)).isoformat()
+    m = re.search(r"\bve?\s+(po|út|ut|st|čt|ct|pá|pa|so|ne)\.", t)
+    if m:
+        delta = (WD[m.group(1)] - today.weekday()) % 7 or 7
+        return (today + timedelta(days=delta)).isoformat()
+    m = re.search(r"(\d{1,2})\.\s*(\d{1,2})\.(?:\s*(\d{4}))?", t)
+    if m:
+        y = int(m.group(3) or today.year)
+        return date(y, int(m.group(2)), int(m.group(1))).isoformat()
+    return None
 
 
 def footprint_of(cfg: dict) -> dict:
@@ -48,7 +71,7 @@ def classify(cfg: dict, meas: dict, prev_state: dict | None, today: date) -> dic
                 zr = meas["zones"].get(k, {"status": "FAILED"})
                 carried = fp[sid][k]
                 p = {"state": None, "units": None, "price": None, "sale_price": None,
-                     "sale_id": None, "restock": None, "zero_since": None, "low": False}
+                     "sale_id": None, "restock": None, "restock_date": None, "zero_since": None, "low": False}
                 if zr["status"] != "OK":
                     p["state"] = FAIL
                 elif carried is None:
@@ -65,6 +88,7 @@ def classify(cfg: dict, meas: dict, prev_state: dict | None, today: date) -> dic
                     else:
                         p["state"] = OOS
                         p["restock"] = restock_text(m["reason"], m["restock_date"], today)
+                        p["restock_date"] = restock_iso(m["reason"], m["restock_date"], today)
                         before = prev_pos.get(sid, {}).get(k, {})
                         p["zero_since"] = (before.get("zero_since") if before.get("state") == OOS
                                            else None) or today.isoformat()
