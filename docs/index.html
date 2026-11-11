@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Polaris · Rohlik.cz availability dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--slate:#515A63;--orange:#F19500;--ink:#1C2529;--muted:#6b737b;--line:#E4E7EA;--bg:#F4F5F6;--green:#0ca30c;--red:#d03b3b;--amber:#fab219;--grey:#e1e4e7}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:#fff}
+header{background:#fff;padding:14px 24px;border-bottom:1px solid var(--line)}header img{height:40px}
+.bar{background:var(--slate);color:#fff;padding:16px 24px}.bar h1{margin:0;font-size:22px}.bar p{margin:4px 0 0;font-size:14px}
+.stripe{height:4px;background:var(--orange)}
+main{max-width:1100px;margin:0 auto;padding:20px 24px 40px}
+h2{font-size:17px;color:var(--slate);border-left:4px solid var(--orange);padding-left:10px;margin:28px 0 12px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.kpi{background:var(--bg);border:1px solid var(--line);padding:14px;text-align:center}
+.kpi b{display:block;font-size:22px}.kpi span{font-size:12px;color:var(--slate)}
+.card{border:1px solid var(--line);padding:14px}
+.toggle button{font:12px Arial;border:1px solid var(--line);background:#fff;padding:5px 10px;margin:0 4px 8px 0;cursor:pointer}
+.toggle button.on{background:var(--slate);color:#fff;border-color:var(--slate)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:12px}
+th{text-align:left;background:#EDEFF0;color:var(--slate);border-bottom:2px solid var(--orange);padding:7px 9px;white-space:nowrap}
+td{padding:7px 9px;border-bottom:1px solid var(--line)}
+.heat td{padding:0;border:0}.heat td.c{width:14px;height:16px;border:1px solid #fff}
+.heat td.z{padding:2px 10px 2px 0;white-space:nowrap;font-size:12px}
+.heat th{background:none;border:0;font-weight:normal;color:var(--muted);font-size:10px;padding:0 0 4px}
+.legend span{display:inline-block;width:11px;height:11px;margin:0 4px -1px 12px}
+.note{font-size:12px;color:var(--muted)}
+footer{font-size:10px;color:var(--slate);border-top:1px solid var(--line);padding-top:12px;margin-top:30px}
+</style>
+</head>
+<body>
+<header><img src="logo.png" alt="POS Media"></header>
+<div class="bar"><h1>Polaris · Rohlik.cz availability dashboard</h1><p id="sub">Loading…</p></div>
+<div class="stripe"></div>
+<main>
+<div class="kpis" id="kpis"></div>
+
+<h2>Availability trend</h2>
+<div class="card"><div class="toggle" id="tog"></div><canvas id="trend" height="110"></canvas>
+<p class="note">Availability = in stock ÷ listed positions (SKU × warehouse). Gaps = no measurement that day.</p></div>
+
+<h2>Warehouse × day</h2>
+<div class="card scroll"><table class="heat" id="heat"></table>
+<p class="note legend"><span style="background:#0ca30c;margin-left:0"></span>all listed in stock<span style="background:#fab219"></span>1 out of stock<span style="background:#d03b3b"></span>2+ out of stock<span style="background:#e1e4e7"></span>no measurement</p></div>
+
+<h2>Out of stock today</h2><div class="scroll"><table id="oos"></table></div>
+<h2>Low stock today (≤5 units)</h2><div class="scroll"><table id="low"></table></div>
+<h2>Most frequent stock-outs</h2><div class="scroll"><table id="top"></table></div>
+
+<footer>POS Media Czech Republic · data measured daily from Rohlik.cz public availability · point-in-time snapshots, not a live feed</footer>
+</main>
+<script>
+const COL={chrastany:'#515A63',praha_liboc:'#F19500',horni_pocernice:'#2f7fbf',brno:'#0ca30c',ostrava:'#8e44ad'};
+const fmt=d=>{const [y,m,dd]=d.split('-');return +dd+'.'+(+m)+'.'};
+fetch('data/polaris.json',{cache:'no-store'}).then(r=>r.json()).then(D=>{
+ const days=D.days, last=days[days.length-1], zn=Object.fromEntries(D.zones.map(z=>[z.key,z.name]));
+ const name=s=>D.skus[s]||s;
+ document.getElementById('sub').textContent=`${days.length} measured days since ${fmt(days[0].date)}${days[0].date.slice(0,4)} · latest ${fmt(last.date)}${last.date.slice(0,4)}, measured ${last.measured||''}`;
+ const avg=(days.reduce((a,d)=>a+d.total.availability,0)/days.length).toFixed(1);
+ const prev=days[days.length-2], delta=prev?(last.total.availability-prev.total.availability).toFixed(1):0;
+ const maxDays=Math.max(0,...last.oos.map(o=>o.days_at_zero||0));
+ const k=[[last.total.availability+'%','Availability today',delta>=0?'var(--green)':'var(--red)'],[(delta>0?'+':'')+delta+' pp','vs previous day','var(--slate)'],[last.total.oos,'Out of stock','var(--red)'],[last.low.length,'Low stock (≤5)','var(--amber)'],[avg+'%','Average, all days','var(--orange)'],[maxDays?maxDays+' days':'–','Longest at zero','var(--slate)']];
+ document.getElementById('kpis').innerHTML=k.map(([v,l,c])=>`<div class="kpi"><b style="color:${c}">${v}</b><span>${l}</span></div>`).join('');
+ // trend
+ const start=new Date(days[0].date), end=new Date(last.date), labels=[], idx={};
+ days.forEach(d=>idx[d.date]=d);
+ for(let t=new Date(start);t<=end;t.setDate(t.getDate()+1)){labels.push(t.toISOString().slice(0,10));}
+ const series=key=>labels.map(l=>{const d=idx[l];if(!d)return null;const z=key==='total'?d.total:d.zones[key];return z&&z.listed?+(z.in_stock/z.listed*100).toFixed(1):null});
+ const ds=[{label:'All warehouses',key:'total',borderColor:'#1C2529',borderWidth:3}].concat(D.zones.map(z=>({label:z.name,key:z.key,borderColor:COL[z.key],borderWidth:2})));
+ ds.forEach(d=>{d.data=series(d.key);d.spanGaps=false;d.pointRadius=2;d.tension=.2;d.hidden=d.key!=='total'});
+ const ch=new Chart(document.getElementById('trend'),{type:'line',data:{labels:labels.map(fmt),datasets:ds},options:{plugins:{legend:{display:false}},scales:{y:{min:50,max:100,ticks:{callback:v=>v+'%'}}}}});
+ document.getElementById('tog').innerHTML=ds.map((d,i)=>`<button data-i="${i}" class="${d.hidden?'':'on'}" style="border-left:4px solid ${d.borderColor}">${d.label}</button>`).join('');
+ document.getElementById('tog').onclick=e=>{const i=e.target.dataset.i;if(i===undefined)return;const m=ch.getDatasetMeta(i);m.hidden=!m.hidden;e.target.classList.toggle('on',!m.hidden);ch.update()};
+ // heatmap
+ let h='<tr><th></th>'+labels.map((l,i)=>`<th>${(new Date(l).getDay()===1||i===0)?fmt(l):''}</th>`).join('')+'</tr>';
+ D.zones.forEach(z=>{h+=`<tr><td class="z">${z.name}</td>`+labels.map(l=>{const d=idx[l];if(!d)return `<td class="c" style="background:#e1e4e7" title="${fmt(l)}: no measurement"></td>`;const o=d.zones[z.key].oos;const c=o===0?'#0ca30c':o===1?'#fab219':'#d03b3b';return `<td class="c" style="background:${c}" title="${fmt(l)} · ${z.name}: ${d.zones[z.key].in_stock}/${d.zones[z.key].listed} in stock"></td>`}).join('')+'</tr>'});
+ document.getElementById('heat').innerHTML=h;
+ // tables
+ const tbl=(id,head,rows,empty)=>{document.getElementById(id).innerHTML=rows.length?'<tr>'+head.map(x=>`<th>${x}</th>`).join('')+'</tr>'+rows.map(r=>'<tr>'+r.map(c=>`<td>${c??''}</td>`).join('')+'</tr>').join(''):`<tr><td>${empty}</td></tr>`};
+ tbl('oos',['SKU','Product','Warehouse','Restock','Days at 0'],last.oos.map(o=>[o.sku,name(o.sku),zn[o.zone],o.restock||'not given',o.days_at_zero??'']),'None – all listed positions in stock.');
+ tbl('low',['SKU','Product','Warehouse','Units'],last.low.map(o=>[o.sku,name(o.sku),zn[o.zone],`<b style="color:var(--amber)">${o.units}</b>`]),'None.');
+ const cnt={};days.forEach(d=>d.oos.forEach(o=>{const k=o.sku+'|'+o.zone;cnt[k]=(cnt[k]||0)+1}));
+ const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([k,n])=>{const [s,z]=k.split('|');return [s,name(s),zn[z],n+' of '+days.length+' days']});
+ tbl('top',['SKU','Product','Warehouse','Out of stock on'],top,'No stock-outs recorded.');
+}).catch(e=>{document.getElementById('sub').textContent='Could not load data: '+e});
+</script>
+</body>
+</html>
