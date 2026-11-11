@@ -18,11 +18,11 @@ footprint:
   source: "a user-supplied per-zone carried/not-carried map for the 14 tracked SKUs, cross-checked against live measurement at the time"
 
 zones:                              # order = column order in the report
-  - {key: chrastany,       name: "Chrášťany",       address_id: 6011285, address_query: "U Rybníka 29 Chrášťany"}
+  - {key: chrastany,       name: "Chrášťany",       address_id: 6011285, address_query: "U Rybníka 29 Chrášťany", expected_warehouse_id: 8801}
   - {key: praha_liboc,     name: "Praha Liboc",     address_id: 5495707, address_query: "Libocká 10/64 Praha", expected_warehouse_id: 8791}
-  - {key: horni_pocernice, name: "Horní Počernice", address_id: 5698003, address_query: "Náchodská 756/90 Praha"}
+  - {key: horni_pocernice, name: "Horní Počernice", address_id: 5698003, address_query: "Náchodská 756/90 Praha", expected_warehouse_id: 8799}
   - {key: brno,            name: "Brno",            address_id: 5530325, address_query: "Čápkova 13/5 Brno", expected_warehouse_id: 8793}
-  - {key: ostrava,         name: "Ostrava",         address_id: 10947259, address_query: "Nemocniční 3328/11 Ostrava"}
+  - {key: ostrava,         name: "Ostrava",         address_id: 10947259, address_query: "Nemocniční 3328/11 Ostrava", expected_warehouse_id: 8802}
 
 brands:
   - name: Polaris
