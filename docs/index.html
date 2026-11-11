@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cs">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Polaris · Rohlik.cz availability dashboard</title>
+<title>Polaris · dostupnost na Rohlik.cz</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root{--slate:#515A63;--orange:#F19500;--ink:#1C2529;--muted:#6b737b;--line:#E4E7EA;--bg:#F4F5F6;--green:#0ca30c;--red:#d03b3b;--amber:#fab219}
@@ -13,10 +13,14 @@ header{padding:14px 24px;border-bottom:1px solid var(--line)}header img{height:4
 .bar{background:var(--slate);color:#fff;padding:16px 24px}.bar h1{margin:0;font-size:22px}.bar p{margin:4px 0 0;font-size:14px}
 .stripe{height:4px;background:var(--orange)}
 main{max-width:1150px;margin:0 auto;padding:0 24px 40px}
-.nav{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);padding:10px 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.nav b{font-size:17px;color:var(--slate);min-width:120px;text-align:center}
-button{font:12px Arial;border:1px solid var(--line);background:#fff;padding:6px 10px;cursor:pointer;color:var(--ink)}
-button.on{background:var(--slate);color:#fff;border-color:var(--slate)}button:disabled{opacity:.35;cursor:default}
+.nav{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);padding:10px 0}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.row+.row{margin-top:8px}
+.nav b{font-size:17px;color:var(--slate);min-width:110px;text-align:center}
+.lbl{font-size:12px;color:var(--slate);font-weight:bold}
+button,select,input{font:12px Arial;border:1px solid var(--line);background:#fff;padding:6px 10px;color:var(--ink)}
+button{cursor:pointer}button.on{background:var(--slate);color:#fff;border-color:var(--slate)}button:disabled{opacity:.35;cursor:default}
+select.act{border-color:var(--orange);background:#fff7ea}
+#pickmsg{font-size:12px;color:#b57d00}
 h2{font-size:17px;color:var(--slate);border-left:4px solid var(--orange);padding-left:10px;margin:28px 0 12px}
 h3{font-size:14px;color:var(--slate);margin:16px 0 6px}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:16px}
@@ -44,105 +48,131 @@ footer{font-size:10px;color:var(--slate);border-top:1px solid var(--line);paddin
 </head>
 <body>
 <header><img src="logo.png" alt="POS Media"></header>
-<div class="bar"><h1>Polaris · Rohlik.cz availability dashboard</h1><p id="sub">Loading…</p></div>
+<div class="bar"><h1>Polaris · dostupnost na Rohlik.cz</h1><p id="sub">Načítám…</p></div>
 <div class="stripe"></div>
 <main>
-<div class="nav"><button id="first">⏮</button><button id="prev">◀</button><b id="cur"></b><button id="next">▶</button><button id="last">Today</button>
-<button data-j="1">−1 day</button><button data-j="7">−7 days</button><span class="note">or click any day in the chart or heatmap</span></div>
+<div class="nav">
+ <div class="row"><button id="first" title="První měřený den">⏮</button><button id="prev" title="Předchozí den">◀</button><b id="cur"></b><button id="next" title="Další den">▶</button><button id="last">Dnes</button>
+ <button data-j="1">−1 den</button><button data-j="7">−7 dní</button>
+ <span class="lbl">&nbsp;Vybrat den:</span><input type="date" id="pick"><span id="pickmsg"></span></div>
+ <div class="row"><span class="lbl">Sklad:</span><select id="fz"><option value="">Všechny sklady</option></select>
+ <span class="lbl">&nbsp;Produkt:</span><select id="fs"><option value="">Všechny produkty</option></select>
+ <button id="reset">Zrušit filtry</button><span class="note">nebo klikněte na den v grafu či v mapě</span></div>
+</div>
 
 <div class="kpis" id="kpis"></div>
 
-<h2>Availability trend</h2>
-<div class="card"><div id="range"><button data-r="7">7 days</button> <button data-r="30">30 days</button> <button data-r="0" class="on">All</button>
+<h2>Vývoj dostupnosti</h2>
+<div class="card"><div id="range"><button data-r="7">7 dní</button> <button data-r="30">30 dní</button> <button data-r="0" class="on">Vše</button>
  &nbsp;<span id="tog"></span></div><canvas id="trend" height="105"></canvas>
-<p class="note">Availability = in stock ÷ listed positions (SKU × warehouse). Gaps = no measurement that day. Orange line = selected day.</p></div>
+<p class="note">Dostupnost = skladem ÷ listované pozice (SKU × sklad). Mezera = ten den neproběhlo měření. Oranžová čára = vybraný den.</p></div>
 
-<h2>Warehouse × day</h2>
+<h2>Sklad × den</h2>
 <div class="card scroll"><table class="heat" id="heat"></table>
-<p class="note"><span class="dot" style="background:#0ca30c"></span> all listed in stock &nbsp; <span class="dot" style="background:#fab219"></span> 1 out of stock &nbsp; <span class="dot" style="background:#d03b3b"></span> 2+ out of stock &nbsp; <span class="dot" style="background:#e1e4e7"></span> no measurement &nbsp; · outlined = selected day</p></div>
+<p class="note"><span class="dot" style="background:#0ca30c"></span> vše listované skladem &nbsp; <span class="dot" style="background:#fab219"></span> 1 vyprodaná pozice &nbsp; <span class="dot" style="background:#d03b3b"></span> 2 a více vyprodaných &nbsp; <span class="dot" style="background:#e1e4e7"></span> bez měření &nbsp; · orámováno = vybraný den</p></div>
 
-<h2 id="dh">Day detail</h2>
-<div class="grid2"><div><h3>New stock-outs vs previous day</h3><div class="scroll"><table id="newoos"></table></div></div>
-<div><h3>Back in stock vs previous day</h3><div class="scroll"><table id="back"></table></div></div></div>
-<h3>Out of stock</h3><div class="scroll"><table id="oos"></table></div>
-<h3>Low stock (≤5 units)</h3><div class="scroll"><table id="low"></table></div>
+<h2 id="dh">Detail dne</h2>
+<div class="grid2"><div><h3>Nově vyprodané oproti předchozímu dni</h3><div class="scroll"><table id="newoos"></table></div></div>
+<div><h3>Znovu skladem oproti předchozímu dni</h3><div class="scroll"><table id="back"></table></div></div></div>
+<h3>Vyprodáno</h3><div class="scroll"><table id="oos"></table></div>
+<h3>Nízká zásoba (≤5 ks)</h3><div class="scroll"><table id="low"></table></div>
 
-<h2>Out of stock during promotion or campaign</h2>
+<h2>Vyprodáno během akce nebo kampaně</h2>
 <div class="card"><div id="promo"></div></div>
 
-<h2>SKU view</h2>
-<p class="note">Status on the selected day. Click a product to see its history per warehouse.</p>
+<h2>Pohled po produktech</h2>
+<p class="note">Stav ve vybraný den. Kliknutím na produkt zobrazíte jeho historii po skladech.</p>
 <div class="scroll"><table id="skus"></table></div>
 
-<h2>Most frequent stock-outs (all days)</h2><div class="scroll"><table id="top"></table></div>
+<h2>Nejčastější výpadky (všechny dny)</h2><div class="scroll"><table id="top"></table></div>
 
-<footer>POS Media Czech Republic · measured daily from Rohlik.cz public availability · point-in-time snapshots, not a live feed</footer>
+<footer>POS Media Czech Republic · denní měření veřejné dostupnosti na Rohlik.cz · jednorázové snímky stavu, nikoli živá data</footer>
 </main>
 <script>
 const COL={chrastany:'#515A63',praha_liboc:'#F19500',horni_pocernice:'#2f7fbf',brno:'#0ca30c',ostrava:'#8e44ad'};
 const fmt=d=>{const [y,m,dd]=d.split('-');return +dd+'.'+(+m)+'.'};
 const full=d=>{const [y,m,dd]=d.split('-');return dd+'.'+m+'.'+y};
+const pc=v=>v===null||v===undefined?'–':v.toFixed(1).replace('.',',')+' %';
+const num=v=>String(v).replace('.',',');
+const dny=n=>n+' '+(n===1?'den':n>=2&&n<=4?'dny':'dní');
 const $=id=>document.getElementById(id);
 fetch('data/polaris.json',{cache:'no-store'}).then(r=>r.json()).then(D=>{
  const days=D.days, Z=D.zones, zn=Object.fromEntries(Z.map(z=>[z.key,z.name])), name=s=>D.skus[s]||s;
  const idx={};days.forEach((d,i)=>idx[d.date]=i);
  const labels=[];for(let t=new Date(days[0].date+'T12:00');t<=new Date(days[days.length-1].date+'T12:00');t.setDate(t.getDate()+1))labels.push(t.toISOString().slice(0,10));
- let sel=days.length-1, range=0;
- $('sub').textContent=`${days.length} measured days since ${full(days[0].date)} · latest measurement ${full(days[days.length-1].date)} ${days[days.length-1].measured||''}`;
+ let sel=days.length-1, range=0, fz='', fs='';
+ $('sub').textContent=`${days.length} měřených dní od ${full(days[0].date)} · poslední měření ${full(days[days.length-1].date)} ${days[days.length-1].measured||''}`;
+ $('pick').min=days[0].date;$('pick').max=days[days.length-1].date;
+ Z.forEach(z=>$('fz').insertAdjacentHTML('beforeend',`<option value="${z.key}">${z.name}</option>`));
+ Object.keys(D.skus).forEach(s=>$('fs').insertAdjacentHTML('beforeend',`<option value="${s}">${s} · ${name(s)}</option>`));
  const key=o=>o.sku+'|'+o.zone, inCamp=(sku,date)=>D.campaigns.filter(c=>c.skus.map(String).includes(String(sku))&&date>=c.start&&date<=c.end);
+ const ok=o=>(!fz||o.zone===fz)&&(!fs||String(o.sku)===fs);
+ const zonesF=()=>fz?Z.filter(z=>z.key===fz):Z;
+ const skusF=()=>fs?[fs]:Object.keys(D.skus);
+ const stats=d=>{if(!fs){const v=fz?d.zones[fz]:d.total;return {listed:v.listed,in:v.in_stock,oos:v.oos,av:v.listed?v.in_stock/v.listed*100:null}}
+  const listed=zonesF().filter(z=>!(D.nl[fs]||[]).includes(z.key)).length,oos=d.oos.filter(ok).length;return {listed,in:listed-oos,oos,av:listed?(listed-oos)/listed*100:null}};
  const status=(d,sku,z)=>{if((D.nl[sku]||[]).includes(z))return 'N';if(d.oos.some(o=>o.sku==sku&&o.zone===z))return 'O';return 'I'};
  const tbl=(id,head,rows,empty)=>{$(id).innerHTML=rows.length?'<tr>'+head.map(x=>`<th>${x}</th>`).join('')+'</tr>'+rows.map(r=>'<tr>'+r.map(c=>`<td>${c??''}</td>`).join('')+'</tr>').join(''):`<tr><td class="note">${empty}</td></tr>`};
- const ds=[{label:'All warehouses',key:'total',borderColor:'#1C2529',borderWidth:3}].concat(Z.map(z=>({label:z.name,key:z.key,borderColor:COL[z.key],borderWidth:2,hidden:true})));
- const ser=(k,ls)=>ls.map(l=>{const d=days[idx[l]];if(!d)return null;const v=k==='total'?d.total:d.zones[k];return v&&v.listed?+(v.in_stock/v.listed*100).toFixed(1):null});
+ const ds=[{label:'Výběr',key:'sel',borderColor:'#1C2529',borderWidth:3}].concat(Z.map(z=>({label:z.name,key:z.key,borderColor:COL[z.key],borderWidth:2,hidden:true})));
+ const ser=(k,ls)=>ls.map(l=>{const d=days[idx[l]];if(!d)return null;if(k==='sel'){const s=stats(d);return s.av===null?null:+s.av.toFixed(1)}const v=d.zones[k];return v.listed?+(v.in_stock/v.listed*100).toFixed(1):null});
  const visible=()=>range?labels.slice(-range):labels;
  const selLine={id:'sel',afterDatasetsDraw(c){const l=c.data.labels.indexOf(fmt(days[sel].date));if(l<0)return;const x=c.scales.x.getPixelForValue(l),a=c.chartArea,g=c.ctx;g.save();g.strokeStyle='#F19500';g.lineWidth=2;g.beginPath();g.moveTo(x,a.top);g.lineTo(x,a.bottom);g.stroke();g.restore()}};
  const ch=new Chart($('trend'),{type:'line',data:{labels:[],datasets:ds.map(d=>({...d,data:[],spanGaps:false,pointRadius:3,tension:.2}))},plugins:[selLine],
-  options:{onClick:(e,els)=>{if(!els.length)return;const l=visible()[els[0].index];if(idx[l]!==undefined){sel=idx[l];draw()}},plugins:{legend:{display:false}},scales:{y:{min:50,max:100,ticks:{callback:v=>v+'%'}}}}});
+  options:{onClick:(e,els)=>{if(!els.length)return;const l=visible()[els[0].index];if(idx[l]!==undefined){sel=idx[l];$('pickmsg').textContent='';draw()}},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': '+pc(c.parsed.y)}}},scales:{y:{min:0,max:100,ticks:{callback:v=>v+' %'}}}}});
  $('tog').innerHTML=ds.map((d,i)=>`<button data-i="${i}" class="${d.hidden?'':'on'}" style="border-left:4px solid ${d.borderColor}">${d.label}</button>`).join(' ');
  $('tog').onclick=e=>{const i=e.target.dataset.i;if(i===undefined)return;const m=ch.getDatasetMeta(i);m.hidden=!m.hidden;e.target.classList.toggle('on',!m.hidden);ch.update()};
  $('range').onclick=e=>{const r=e.target.dataset.r;if(r===undefined)return;range=+r;document.querySelectorAll('#range [data-r]').forEach(b=>b.classList.toggle('on',b===e.target));draw()};
- $('first').onclick=()=>{sel=0;draw()};$('last').onclick=()=>{sel=days.length-1;draw()};
- $('prev').onclick=()=>{if(sel>0){sel--;draw()}};$('next').onclick=()=>{if(sel<days.length-1){sel++;draw()}};
- document.querySelectorAll('[data-j]').forEach(b=>b.onclick=()=>{const t=new Date(days[days.length-1].date+'T12:00');t.setDate(t.getDate()-(+b.dataset.j));const lim=t.toISOString().slice(0,10);let k=days.length-1;while(k>0&&days[k].date>lim)k--;sel=k;draw()});
- $('heat').onclick=e=>{const l=e.target.dataset.d;if(l&&idx[l]!==undefined){sel=idx[l];draw()}};
- const cnt={};days.forEach(d=>d.oos.forEach(o=>{cnt[key(o)]=(cnt[key(o)]||0)+1}));
- tbl('top',['SKU','Product','Warehouse','Out of stock on'],Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([k,n])=>{const [s,z]=k.split('|');return [s,name(s),zn[z],`${n} of ${days.length} measured days`]}),'No stock-outs recorded.');
+ const go=i=>{sel=i;$('pickmsg').textContent='';draw()};
+ $('first').onclick=()=>go(0);$('last').onclick=()=>go(days.length-1);
+ $('prev').onclick=()=>{if(sel>0)go(sel-1)};$('next').onclick=()=>{if(sel<days.length-1)go(sel+1)};
+ document.querySelectorAll('[data-j]').forEach(b=>b.onclick=()=>{const t=new Date(days[days.length-1].date+'T12:00');t.setDate(t.getDate()-(+b.dataset.j));const lim=t.toISOString().slice(0,10);let k=days.length-1;while(k>0&&days[k].date>lim)k--;go(k)});
+ $('pick').onchange=e=>{const v=e.target.value;if(!v)return;let k=days.length-1;while(k>0&&days[k].date>v)k--;sel=k;draw();$('pickmsg').textContent=days[k].date===v?'':`Dne ${full(v)} neproběhlo měření – zobrazen nejbližší předchozí den (${full(days[k].date)}).`};
+ $('heat').onclick=e=>{const l=e.target.dataset.d;if(l&&idx[l]!==undefined)go(idx[l])};
+ $('fz').onchange=e=>{fz=e.target.value;draw()};$('fs').onchange=e=>{fs=e.target.value;draw()};
+ $('reset').onclick=()=>{fz=fs='';$('fz').value=$('fs').value='';draw()};
  function draw(){
-  const d=days[sel], p=days[sel-1];
-  $('cur').textContent=full(d.date);$('prev').disabled=sel===0;$('next').disabled=sel===days.length-1;
-  $('dh').textContent='Day detail · '+full(d.date)+(p?' (vs '+full(p.date)+')':'');
-  const dl=(a,b,inv,pp)=>{if(b===undefined||b===null)return '<i class="note">first measured day</i>';const v=+(a-b).toFixed(1);if(!v)return '<i class="note">no change</i>';const good=inv?v<0:v>0;return `<i class="${good?'up':'down'}">${v>0?'▲ +':'▼ '}${v}${pp?' pp':''}</i>`};
-  const maxd=Math.max(0,...d.oos.map(o=>o.days_at_zero||0)), av=d.total.availability;
-  const K=[[av+'%','Availability',av>=95?'var(--green)':av>=90?'var(--orange)':'var(--red)',dl(av,p&&p.total.availability,false,true)],
-   [d.total.in_stock+' / '+d.total.listed,'In stock / listed','var(--slate)',dl(d.total.in_stock,p&&p.total.in_stock)],
-   [d.total.oos,'Out of stock','var(--red)',dl(d.total.oos,p&&p.total.oos,true)],[d.low.length,'Low stock (≤5)','#b57d00',dl(d.low.length,p&&p.low.length,true)],
-   [maxd?maxd+' days':'–','Longest at zero','var(--slate)',''],[d.measured||'–','Measured at','var(--slate)','']];
+  const d=days[sel], p=days[sel-1], S=stats(d), P=p?stats(p):null;
+  $('fz').classList.toggle('act',!!fz);$('fs').classList.toggle('act',!!fs);
+  $('cur').textContent=full(d.date);$('pick').value=d.date;$('prev').disabled=sel===0;$('next').disabled=sel===days.length-1;
+  const flt=[fz&&zn[fz],fs&&name(fs)].filter(Boolean).join(' · ');
+  $('dh').textContent='Detail dne · '+full(d.date)+(p?' (oproti '+full(p.date)+')':'')+(flt?' · filtr: '+flt:'');
+  const dl=(a,b,inv,pp)=>{if(b===undefined||b===null)return '<i class="note">první měřený den</i>';const v=+(a-b).toFixed(1);if(!v)return '<i class="note">beze změny</i>';const good=inv?v<0:v>0;return `<i class="${good?'up':'down'}">${v>0?'▲ +':'▼ '}${num(v)}${pp?' p.b.':''}</i>`};
+  const O=d.oos.filter(ok), Lw=d.low.filter(ok), maxd=Math.max(0,...O.map(o=>o.days_at_zero||0));
+  const K=[[pc(S.av),'Dostupnost',S.av>=95?'var(--green)':S.av>=90?'var(--orange)':'var(--red)',dl(S.av,P&&P.av,false,true)],
+   [S.in+' / '+S.listed,'Skladem / listováno','var(--slate)',dl(S.in,P&&P.in)],
+   [S.oos,'Vyprodáno','var(--red)',dl(S.oos,P&&P.oos,true)],[Lw.length,'Nízká zásoba (≤5 ks)','#b57d00',dl(Lw.length,p&&p.low.filter(ok).length,true)],
+   [maxd?dny(maxd):'–','Nejdelší výpadek','var(--slate)',''],[d.measured||'–','Čas měření','var(--slate)','']];
   $('kpis').innerHTML=K.map(([v,l,c,x])=>`<div class="kpi"><b style="color:${c}">${v}</b><span>${l}</span>${x}</div>`).join('');
-  const L=visible();ch.data.labels=L.map(fmt);ch.data.datasets.forEach((s,i)=>s.data=ser(ds[i].key,L));ch.update();
+  ds[0].label=flt||'Všechny sklady';$('tog').querySelector('[data-i="0"]').textContent=ds[0].label;
+  const L=visible();ch.data.labels=L.map(fmt);ch.data.datasets.forEach((s,i)=>{s.data=ser(ds[i].key,L);s.label=ds[i].label});ch.update();
   let h='<tr><th></th>'+labels.map((l,i)=>`<th>${(new Date(l+'T12:00').getDay()===1||i===0)?fmt(l):''}</th>`).join('')+'</tr>';
-  Z.forEach(z=>{h+=`<tr><td class="z">${z.name}</td>`+labels.map(l=>{const x=days[idx[l]],s=l===d.date?' sel':'';if(!x)return `<td class="c${s}" style="background:#e1e4e7" title="${fmt(l)}: no measurement"></td>`;const o=x.zones[z.key].oos;return `<td class="c${s}" data-d="${l}" style="background:${o===0?'#0ca30c':o===1?'#fab219':'#d03b3b'}" title="${fmt(l)} · ${z.name}: ${x.zones[z.key].in_stock}/${x.zones[z.key].listed} in stock"></td>`}).join('')+'</tr>'});
+  zonesF().forEach(z=>{h+=`<tr><td class="z">${z.name}</td>`+labels.map(l=>{const x=days[idx[l]],s=l===d.date?' sel':'';if(!x)return `<td class="c${s}" style="background:#e1e4e7" title="${fmt(l)}: bez měření"></td>`;
+   const o=fs?x.oos.filter(q=>q.zone===z.key&&String(q.sku)===fs).length:x.zones[z.key].oos;const na=fs&&(D.nl[fs]||[]).includes(z.key);
+   return `<td class="c${s}" data-d="${l}" style="background:${na?'#f4f5f6':o===0?'#0ca30c':o===1?'#fab219':'#d03b3b'}" title="${fmt(l)} · ${z.name}: ${na?'nelistováno':fs?(o?'vyprodáno':'skladem'):x.zones[z.key].in_stock+' z '+x.zones[z.key].listed+' skladem'}"></td>`}).join('')+'</tr>'});
   $('heat').innerHTML=h;
   const prevK=new Set((p?p.oos:[]).map(key)),curK=new Set(d.oos.map(key));
-  const badge=o=>(o.promo?'<span class="badge">PROMO</span>':'')+(inCamp(o.sku,d.date).length?'<span class="badge o">CAMPAIGN</span>':'');
-  tbl('newoos',['SKU','Product','Warehouse'],p?d.oos.filter(o=>!prevK.has(key(o))).map(o=>[o.sku,name(o.sku)+badge(o),zn[o.zone]]):[],p?'None – no new stock-outs.':'First measured day.');
-  tbl('back',['SKU','Product','Warehouse'],p?p.oos.filter(o=>!curK.has(key(o))).map(o=>[o.sku,name(o.sku),zn[o.zone]]):[],p?'None.':'First measured day.');
-  tbl('oos',['SKU','Product','Warehouse','Restock','Days at 0'],d.oos.slice().sort((a,b)=>(b.days_at_zero||0)-(a.days_at_zero||0)).map(o=>[o.sku,name(o.sku)+badge(o),zn[o.zone],o.restock?(/^\d{4}-/.test(o.restock)?fmt(o.restock):o.restock):'not given',o.days_at_zero??'']),'None – all listed positions in stock.');
-  tbl('low',['SKU','Product','Warehouse','Units'],d.low.map(o=>[o.sku,name(o.sku),zn[o.zone],`<b style="color:#b57d00">${o.units}</b>`]),'None.');
-  const pd=d.oos.filter(o=>o.promo||inCamp(o.sku,d.date).length);let all=0;days.forEach(x=>x.oos.forEach(o=>{if(o.promo||inCamp(o.sku,x.date).length)all++}));
-  $('promo').innerHTML=`<p style="margin:0 0 8px;font-size:12px"><b>${pd.length}</b> position${pd.length===1?'':'s'} out of stock while on promotion or in a running campaign on ${full(d.date)} · <b>${all}</b> such position-days across all ${days.length} measured days.</p>`+
-   (pd.length?'<table><tr><th>SKU</th><th>Product</th><th>Warehouse</th><th>Why it matters</th></tr>'+pd.map(o=>`<tr><td>${o.sku}</td><td>${name(o.sku)}${badge(o)}</td><td>${zn[o.zone]}</td><td>${inCamp(o.sku,d.date).map(c=>'Campaign “'+c.name+'” is running – shoppers who click cannot buy').join('; ')||'Promo price is shown, but the product cannot be bought'}</td></tr>`).join('')+'</table>':'')+
-   `<p class="note">${D.campaigns.length?D.campaigns.length+' campaign(s) loaded.':'No campaigns loaded yet – add them to campaigns.yml to flag stock-outs during paid campaigns.'} Promotion flags are available from 19.10.2026 onwards.</p>`;
-  const SC={I:['#0ca30c','in stock'],O:['#d03b3b','OOS'],N:['#c9cdd1','not listed']};
-  let s='<tr><th>SKU</th><th>Product</th>'+Z.map(z=>`<th>${z.name}</th>`).join('')+'<th>Days OOS (all)</th></tr>';
-  Object.keys(D.skus).forEach(sku=>{const tot=days.reduce((a,x)=>a+x.oos.filter(o=>o.sku==sku).length,0);
-   s+=`<tr class="sku" data-s="${sku}"><td>${sku}</td><td>${name(sku)} ▸</td>`+Z.map(z=>{const st=status(d,sku,z.key),lw=d.low.find(o=>o.sku==sku&&o.zone===z.key);const [c,t]=SC[st];return `<td><span class="st" style="background:${lw&&st==='I'?'#fab219':c}">${lw&&st==='I'?lw.units+' units':t}</span></td>`}).join('')+`<td>${tot} position-days</td></tr>`;
-   s+=`<tr id="h${sku}" style="display:none"><td colspan="${Z.length+3}" style="background:#fafbfb">`+Z.filter(z=>!(D.nl[sku]||[]).includes(z.key)).map(z=>{let streak=0,best=0,n=0;const cells=labels.map(l=>{const x=days[idx[l]];if(!x)return '<span style="background:#e1e4e7" title="'+fmt(l)+': no measurement"></span>';const o=x.oos.some(q=>q.sku==sku&&q.zone===z.key);if(o){n++;streak++;best=Math.max(best,streak)}else streak=0;return `<span style="background:${o?'#d03b3b':'#0ca30c'}${l===d.date?';outline:2px solid #1C2529':''}" title="${fmt(l)}: ${o?'out of stock':'in stock'}"></span>`}).join('');
-    return `<div style="display:flex;align-items:center;gap:10px;margin:3px 0"><span style="width:120px;font-size:12px">${z.name}</span><span class="strip">${cells}</span><span class="note">${n} days OOS · longest run ${best}</span></div>`}).join('')+'</td></tr>'});
+  const badge=o=>(o.promo?'<span class="badge">AKCE</span>':'')+(inCamp(o.sku,d.date).length?'<span class="badge o">KAMPAŇ</span>':'');
+  tbl('newoos',['SKU','Produkt','Sklad'],p?O.filter(o=>!prevK.has(key(o))).map(o=>[o.sku,name(o.sku)+badge(o),zn[o.zone]]):[],p?'Žádné – nic nově nevyprodáno.':'První měřený den.');
+  tbl('back',['SKU','Produkt','Sklad'],p?p.oos.filter(ok).filter(o=>!curK.has(key(o))).map(o=>[o.sku,name(o.sku),zn[o.zone]]):[],p?'Žádné.':'První měřený den.');
+  tbl('oos',['SKU','Produkt','Sklad','Naskladnění','Dní na nule'],O.slice().sort((a,b)=>(b.days_at_zero||0)-(a.days_at_zero||0)).map(o=>[o.sku,name(o.sku)+badge(o),zn[o.zone],o.restock?(/^\d{4}-/.test(o.restock)?fmt(o.restock):o.restock):'neuvedeno',o.days_at_zero??'']),'Žádné – všechny listované pozice skladem.');
+  tbl('low',['SKU','Produkt','Sklad','Kusů'],Lw.map(o=>[o.sku,name(o.sku),zn[o.zone],`<b style="color:#b57d00">${o.units}</b>`]),'Žádné.');
+  const pd=O.filter(o=>o.promo||inCamp(o.sku,d.date).length);let all=0;days.forEach(x=>x.oos.filter(ok).forEach(o=>{if(o.promo||inCamp(o.sku,x.date).length)all++}));
+  $('promo').innerHTML=`<p style="margin:0 0 8px;font-size:12px">Vyprodané pozice v akci nebo v běžící kampani dne ${full(d.date)}: <b>${pd.length}</b> · za všech ${days.length} měřených dní celkem <b>${all}</b> pozic-dní.</p>`+
+   (pd.length?'<table><tr><th>SKU</th><th>Produkt</th><th>Sklad</th><th>Proč na tom záleží</th></tr>'+pd.map(o=>`<tr><td>${o.sku}</td><td>${name(o.sku)}${badge(o)}</td><td>${zn[o.zone]}</td><td>${inCamp(o.sku,d.date).map(c=>'Běží kampaň „'+c.name+'“ – zákazník po kliknutí nemůže nakoupit').join('; ')||'Zobrazuje se akční cena, ale produkt nejde koupit'}</td></tr>`).join('')+'</table>':'')+
+   `<p class="note">${D.campaigns.length?'Nahrané kampaně: '+D.campaigns.length+'.':'Zatím nejsou nahrané žádné kampaně – doplňte je do souboru campaigns.yml a vyprodání během placené kampaně se označí.'} Příznak akce je k dispozici od 19.10.2026.</p>`;
+  const SC={I:['#0ca30c','skladem'],O:['#d03b3b','vyprodáno'],N:['#c9cdd1','nelistováno']};
+  let s='<tr><th>SKU</th><th>Produkt</th>'+zonesF().map(z=>`<th>${z.name}</th>`).join('')+'<th>Vyprodáno celkem</th></tr>';
+  skusF().forEach(sku=>{const tot=days.reduce((a,x)=>a+x.oos.filter(o=>o.sku==sku&&(!fz||o.zone===fz)).length,0);
+   s+=`<tr class="sku" data-s="${sku}"><td>${sku}</td><td>${name(sku)} ▸</td>`+zonesF().map(z=>{const st=status(d,sku,z.key),lw=d.low.find(o=>o.sku==sku&&o.zone===z.key);const [c,t]=SC[st];return `<td><span class="st" style="background:${lw&&st==='I'?'#fab219':c}">${lw&&st==='I'?lw.units+' ks':t}</span></td>`}).join('')+`<td>${tot} pozic-dní</td></tr>`;
+   s+=`<tr id="h${sku}" style="display:${fs?'':'none'}"><td colspan="${zonesF().length+3}" style="background:#fafbfb">`+zonesF().filter(z=>!(D.nl[sku]||[]).includes(z.key)).map(z=>{let streak=0,best=0,n=0;const cells=labels.map(l=>{const x=days[idx[l]];if(!x)return '<span style="background:#e1e4e7" title="'+fmt(l)+': bez měření"></span>';const o=x.oos.some(q=>q.sku==sku&&q.zone===z.key);if(o){n++;streak++;best=Math.max(best,streak)}else streak=0;return `<span style="background:${o?'#d03b3b':'#0ca30c'}${l===d.date?';outline:2px solid #1C2529':''}" title="${fmt(l)}: ${o?'vyprodáno':'skladem'}"></span>`}).join('');
+    return `<div style="display:flex;align-items:center;gap:10px;margin:3px 0"><span style="width:120px;font-size:12px">${z.name}</span><span class="strip">${cells}</span><span class="note">${dny(n)} vyprodáno · nejdelší výpadek ${dny(best)}</span></div>`}).join('')+'</td></tr>'});
   $('skus').innerHTML=s;
   document.querySelectorAll('tr.sku').forEach(r=>r.onclick=()=>{const x=$('h'+r.dataset.s);x.style.display=x.style.display==='none'?'':'none'});
+  const cnt={};days.forEach(x=>x.oos.filter(ok).forEach(o=>{cnt[key(o)]=(cnt[key(o)]||0)+1}));
+  tbl('top',['SKU','Produkt','Sklad','Vyprodáno'],Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([k,n])=>{const [s2,z]=k.split('|');return [s2,name(s2),zn[z],`${dny(n)} z ${days.length} měřených`]}),'Žádné výpadky.');
  }
  draw();
-}).catch(e=>{$('sub').textContent='Could not load data: '+e});
+}).catch(e=>{$('sub').textContent='Data se nepodařilo načíst: '+e});
 </script>
 </body>
 </html>
