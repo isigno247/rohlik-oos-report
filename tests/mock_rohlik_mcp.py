@@ -70,7 +70,15 @@ class H(BaseHTTPRequestHandler):
                              "expectedReplenishment": rec[3] if len(rec) > 3 else None, "sales": []})
             return self._send(200, rows, sid)
         if p == "/api/v1/products/prices":
-            rows = [{"productId": pid, "price": {"amount": zone[str(pid)][1], "currency": "CZK"}, "sales": []}
+            def promo(pid):
+                if pid == 1454631:
+                    return [{"type": "multipack", "triggerAmount": 2, "price": {"amount": 49.9}, "originalPrice": {"amount": 57.9},
+                             "validTill": "2026-11-30T23:59:00+01:00", "active": True}]
+                if pid == 1423458:
+                    return [{"type": "longtermAction", "triggerAmount": 1, "price": {"amount": 669.9}, "originalPrice": {"amount": 709.9},
+                             "validTill": "2026-12-31T23:59:00+01:00", "active": True}]
+                return []
+            rows = [{"productId": pid, "price": {"amount": zone[str(pid)][1], "currency": "CZK"}, "sales": promo(pid)}
                     for pid in ids if str(pid) in zone]
             return self._send(200, rows, sid)
         return self._send(404, {"status": 404}, sid)
