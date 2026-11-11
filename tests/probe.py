@@ -9,7 +9,7 @@ PIDS = [1423458, 1454631, 1474802]
 
 
 class S:
-    def __init__(self, udid=False, sid_hdr=None):
+    def __init__(self, udid=False, sid_hdr=None, sidcookie=False):
         self.jar = http.cookiejar.CookieJar()
         self.op = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(self.jar))
         self.h = {"User-Agent": UA, "Accept": "application/json", "X-Origin": "WEB",
@@ -17,6 +17,8 @@ class S:
         self.h["X-Custom-SessionId"] = sid_hdr or str(uuid.uuid4())
         if udid:
             self.set_cookie("udid", str(uuid.uuid4()))
+        if sidcookie:
+            self.set_cookie("sid", self.h["X-Custom-SessionId"])
 
     def set_cookie(self, name, value):
         c = http.cookiejar.Cookie(0, name, value, None, False, "www.rohlik.cz", True, False, "/", True,
@@ -93,6 +95,8 @@ def run(label, **kw):
 
 
 if __name__ == "__main__":
+    run("F sid cookie == X-Custom-SessionId header", sidcookie=True)
+    run("G sid cookie + udid + extra calls", sidcookie=True, udid=True, extra=True)
     run("A baseline (what the report does today)")
     run("B + self-made udid cookie", udid=True)
     run("C + extra follow-up calls the site makes", extra=True)
