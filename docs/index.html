@@ -43,6 +43,10 @@ td{padding:7px 9px;border-bottom:1px solid var(--line)}
 tr.sku{cursor:pointer}tr.sku:hover{background:#fafbfb}
 .strip{display:flex;gap:1px;flex-wrap:nowrap}.strip span{width:9px;height:14px;display:inline-block}
 .note{font-size:12px;color:var(--muted)}.up{color:var(--green)}.down{color:var(--red)}
+.sum{margin-top:16px;background:#fff7ea;border-left:4px solid var(--orange);padding:14px 16px}
+.sum h3{margin:0 0 6px;font-size:15px;color:var(--slate)}.sum p{margin:0;font-size:14px;line-height:1.6}
+.pb{display:inline-block;font-size:10px;font-weight:bold;color:#fff;padding:1px 5px;margin-top:3px}
+.pt-sale{background:var(--red)}.pt-multipack{background:#7b3fa0}.pt-longtermAction{background:#2f7fbf}.pt-expiration{background:#8a6d3b}.pt-premium{background:#9aa0a6}
 footer{font-size:10px;color:var(--slate);border-top:1px solid var(--line);padding-top:12px;margin-top:30px}
 </style>
 </head>
@@ -60,6 +64,7 @@ footer{font-size:10px;color:var(--slate);border-top:1px solid var(--line);paddin
  <button id="reset">Zrušit filtry</button><span class="note">nebo klikněte na den v grafu či v mapě</span></div>
 </div>
 
+<div class="sum" id="sum"></div>
 <div class="kpis" id="kpis"></div>
 
 <h2>Vývoj dostupnosti</h2>
@@ -76,6 +81,11 @@ footer{font-size:10px;color:var(--slate);border-top:1px solid var(--line);paddin
 <div><h3>Znovu skladem oproti předchozímu dni</h3><div class="scroll"><table id="back"></table></div></div></div>
 <h3>Vyprodáno</h3><div class="scroll"><table id="oos"></table></div>
 <h3>Nízká zásoba (≤5 ks)</h3><div class="scroll"><table id="low"></table></div>
+
+<h2>Ceny a akce</h2>
+<div class="scroll"><table id="prices"></table></div>
+<h3>Aktivní akce</h3><div class="scroll"><table id="promos"></table></div>
+<p class="note" id="pricenote"></p>
 
 <h2>Vyprodáno během akce nebo kampaně</h2>
 <div class="card"><div id="promo"></div></div>
@@ -96,6 +106,13 @@ const pc=v=>v===null||v===undefined?'–':v.toFixed(1).replace('.',',')+' %';
 const num=v=>String(v).replace('.',',');
 const dny=n=>n+' '+(n===1?'den':n>=2&&n<=4?'dny':'dní');
 const $=id=>document.getElementById(id);
+const PT={sale:'Akce',multipack:'Multibuy',longtermAction:'Trvale nízká cena',expiration:'Výprodej',premium:'Xtra cena'};
+const kc=v=>v===null||v===undefined?'':v.toFixed(1).replace('.',',')+' Kč';
+const plabel=x=>PT[x[0]]+(x[0]==='multipack'?' (kup '+x[4]+')':'')+(x[3]?' −'+x[3]+' %':'');
+const pbadge=x=>`<span class="pb pt-${x[0]}">${plabel(x)}</span>`;
+const gen=n=>n===1?'pozice':'pozic';
+const vypr=n=>n===1?'vyprodaná pozice':n>=2&&n<=4?'vyprodané pozice':'vyprodaných pozic';
+const join=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' a '+a[a.length-1];
 fetch('data/polaris.json',{cache:'no-store'}).then(r=>r.json()).then(D=>{
  const days=D.days, Z=D.zones, zn=Object.fromEntries(Z.map(z=>[z.key,z.name])), name=s=>D.skus[s]||s;
  const idx={};days.forEach((d,i)=>idx[d.date]=i);
@@ -160,6 +177,30 @@ fetch('data/polaris.json',{cache:'no-store'}).then(r=>r.json()).then(D=>{
   $('promo').innerHTML=`<p style="margin:0 0 8px;font-size:12px">Vyprodané pozice v akci nebo v běžící kampani dne ${full(d.date)}: <b>${pd.length}</b> · za všech ${days.length} měřených dní celkem <b>${all}</b> pozic-dní.</p>`+
    (pd.length?'<table><tr><th>SKU</th><th>Produkt</th><th>Sklad</th><th>Proč na tom záleží</th></tr>'+pd.map(o=>`<tr><td>${o.sku}</td><td>${name(o.sku)}${badge(o)}</td><td>${zn[o.zone]}</td><td>${inCamp(o.sku,d.date).map(c=>'Běží kampaň „'+c.name+'“ – zákazník po kliknutí nemůže nakoupit').join('; ')||'Zobrazuje se akční cena, ale produkt nejde koupit'}</td></tr>`).join('')+'</table>':'')+
    `<p class="note">${D.campaigns.length?'Nahrané kampaně: '+D.campaigns.length+'.':'Zatím nejsou nahrané žádné kampaně – doplňte je do souboru campaigns.yml a vyprodání během placené kampaně se označí.'} Příznak akce je k dispozici od 19.10.2026.</p>`;
+  // ---- ceny a akce
+  const promoRows=[];
+  if(d.pos){let t='<tr><th>SKU</th><th>Produkt</th>'+zonesF().map(z=>`<th>${z.name}</th>`).join('')+'</tr>';
+   skusF().forEach(sku=>{t+=`<tr><td>${sku}</td><td>${name(sku)}</td>`+zonesF().map(z=>{const g=d.pos[sku]&&d.pos[sku][z.key];if(!g||g[0]==='N')return '<td><i class="note">nelistováno</i></td>';
+    const pr=(g[4]||[]).filter(x=>x[0]!=='premium');pr.forEach(x=>promoRows.push([sku,z,x,g]));const oosT=g[0]==='O'?'<br><span style="color:#d03b3b;font-size:11px">vyprodáno</span>':'';
+    return pr.length?`<td><b>${kc(pr[0][1])}</b> <s class="note">${kc(pr[0][2]||g[2])}</s><br>${pbadge(pr[0])}${oosT}</td>`:`<td>${kc(g[2])}${oosT}</td>`}).join('')+'</tr>'});
+   $('prices').innerHTML=t;
+   tbl('promos',['SKU','Produkt','Sklad','Typ akce','Akční cena','Běžná cena','Platí do','Zásoba'],promoRows.map(([sku,z,x,g])=>[sku,name(sku),z.name,pbadge(x),'<b>'+kc(x[1])+'</b>',kc(x[2]||g[2]),x[5]?full(x[5]):'–',g[0]==='O'?'<b style="color:#d03b3b">vyprodáno</b>':(g[1]<=5?'<span style="color:#b57d00">'+g[1]+' ks</span>':'skladem')]),'Žádné aktivní akce.');
+   $('pricenote').textContent='Ceny jsou za kus. Multibuy = sleva platí při koupi uvedeného počtu kusů. Xtra (členské) ceny se nezapočítávají.';
+  }else{$('prices').innerHTML='<tr><td class="note">Ceny a typy akcí se měří od 11.11.2026 – pro tento den nejsou k dispozici.</td></tr>';$('promos').innerHTML='';$('pricenote').textContent=''}
+  // ---- manažerské shrnutí
+  const sent=[];const dd=P?+(S.av-P.av).toFixed(1):null;
+  sent.push(`K ${full(d.date)} je skladem <b>${S.in} z ${S.listed}</b> listovaných ${gen(S.listed)}, dostupnost <b>${pc(S.av)}</b>`+(dd===null?'.':dd===0?', beze změny oproti předchozímu měření.':dd<0?`, o ${num(-dd)} p.b. méně než při předchozím měření.`:`, o ${num(dd)} p.b. více než při předchozím měření.`));
+  const w7=days.slice(Math.max(0,sel-6),sel+1).map(stats).filter(x=>x.av!==null),w0=days.slice(Math.max(0,sel-13),Math.max(0,sel-6)).map(stats).filter(x=>x.av!==null);
+  if(w7.length>1){const a7=w7.reduce((a,x)=>a+x.av,0)/w7.length;let t=`Průměr posledních ${w7.length} měření je ${pc(a7)}`;if(w0.length>1){const a0=w0.reduce((a,x)=>a+x.av,0)/w0.length,df=+(a7-a0).toFixed(1);t+=df===0?', stejně jako v předchozím období':` (${df>0?'zlepšení':'zhoršení'} o ${num(Math.abs(df))} p.b. proti předchozímu období)`}sent.push(t+'.')}
+  if(O.length){const byZ=zonesF().map(z=>({z,n:O.filter(o=>o.zone===z.key).length,l:fz||!fs?d.zones[z.key].listed:1})).filter(x=>x.n).sort((a,b)=>b.n-a.n);
+   const lo=O.slice().sort((a,b)=>(b.days_at_zero||0)-(a.days_at_zero||0))[0];
+   sent.push(`Nejvíc chybí ${byZ[0].z.name==='Praha Liboc'||byZ[0].z.name==='Horní Počernice'?'v lokalitě '+byZ[0].z.name:'ve skladu '+byZ[0].z.name} (${byZ[0].n} ${vypr(byZ[0].n)})`+(lo&&lo.days_at_zero>1?`; nejdéle je mimo sklad ${name(lo.sku)} (${zn[lo.zone]}, ${dny(lo.days_at_zero)}).`:'.'))}
+  else sent.push('Všechny listované produkty jsou skladem.');
+  if(d.pos){const oP=promoRows.filter(r=>r[3][0]==='O').length;const kinds={};promoRows.forEach(r=>{const k=PT[r[2][0]].toLowerCase();kinds[k]=(kinds[k]||0)+1});
+   sent.push(promoRows.length?`V akci ${promoRows.length===1?'je 1 pozice':promoRows.length<=4?'jsou '+promoRows.length+' pozice':'je '+promoRows.length+' pozic'} (${join(Object.entries(kinds).map(([k,v])=>v+'× '+k))})`+(oP?`; ${oP} z nich ${oP===1?'je vyprodaná':'jsou vyprodané'} – zákazník vidí akční cenu, ale nemůže nakoupit.`:'.'):'Žádné akce aktuálně neběží.')}
+  else{const oP=O.filter(o=>o.promo).length;if(oP)sent.push(`Přímo během akce ${oP===1?'byla vyprodána 1 pozice':oP<=4?'byly vyprodány '+oP+' pozice':'bylo vyprodáno '+oP+' pozic'}.`)}
+  if(Lw.length){const c=Lw.slice().sort((a,b)=>a.units-b.units)[0];sent.push(`Riziko dalších výpadků: nízká zásoba u ${Lw.length} ${gen(Lw.length)}, nejkritičtěji ${name(c.sku)} (${zn[c.zone]}, ${c.units} ks).`)}
+  $('sum').innerHTML=`<h3>Manažerské shrnutí${flt?' · '+flt:''}</h3><p>${sent.join(' ')}</p>`;
   const SC={I:['#0ca30c','skladem'],O:['#d03b3b','vyprodáno'],N:['#c9cdd1','nelistováno']};
   let s='<tr><th>SKU</th><th>Produkt</th>'+zonesF().map(z=>`<th>${z.name}</th>`).join('')+'<th>Vyprodáno celkem</th></tr>';
   skusF().forEach(sku=>{const tot=days.reduce((a,x)=>a+x.oos.filter(o=>o.sku==sku&&(!fz||o.zone===fz)).length,0);
