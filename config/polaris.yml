@@ -9,7 +9,7 @@ report_slug: polaris
 footer: "POS Media Europe s.r.o. · Automated daily report · Contact: mai.ngoc.tan@pos-media.eu"
 
 canary_sku: 1423451
-restore_address_id: 11759356        # Vrchlabí pickup point
+restore_address_id: 11759356 # unused since the anonymous web session        # Vrchlabí pickup point
 stale_oos_threshold_days: 14
 low_stock_threshold: 5              # fixed by spec, do not change
 
@@ -18,11 +18,11 @@ footprint:
   source: "a user-supplied per-zone carried/not-carried map for the 14 tracked SKUs, cross-checked against live measurement at the time"
 
 zones:                              # order = column order in the report
-  - {key: chrastany,       name: "Chrášťany",       address_id: 6011285}
-  - {key: praha_liboc,     name: "Praha Liboc",     address_id: 5495707}
-  - {key: horni_pocernice, name: "Horní Počernice", address_id: 5698003}
-  - {key: brno,            name: "Brno",            address_id: 5530325}
-  - {key: ostrava,         name: "Ostrava",         address_id: 10947259}
+  - {key: chrastany,       name: "Chrášťany",       address_id: 6011285, address_query: "U Rybníka 29 Chrášťany"}
+  - {key: praha_liboc,     name: "Praha Liboc",     address_id: 5495707, address_query: "Libocká 10/64 Praha", expected_warehouse_id: 8791}
+  - {key: horni_pocernice, name: "Horní Počernice", address_id: 5698003, address_query: "Náchodská 756/90 Praha"}
+  - {key: brno,            name: "Brno",            address_id: 5530325, address_query: "Čápkova 13/5 Brno", expected_warehouse_id: 8793}
+  - {key: ostrava,         name: "Ostrava",         address_id: 10947259, address_query: "Nemocniční 3328/11 Ostrava"}
 
 brands:
   - name: Polaris
