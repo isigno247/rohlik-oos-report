@@ -4,13 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Polaris · dostupnost na Rohlik.cz</title>
+<title>Polaris · Out of stock monitoring &amp; alerting na Rohlik.cz</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root{--slate:#515A63;--orange:#F19500;--ink:#1C2529;--muted:#6b737b;--line:#E4E7EA;--bg:#F4F5F6;--green:#0ca30c;--red:#d03b3b;--amber:#fab219}
 *{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:#fff}
 header{padding:14px 24px;border-bottom:1px solid var(--line)}header img{height:40px}
-.bar{background:var(--slate);color:#fff;padding:16px 24px}.bar h1{margin:0;font-size:22px}.bar p{margin:4px 0 0;font-size:14px}
+.hero{position:relative;overflow:hidden;color:#fff;background:linear-gradient(120deg,#3b4249 0%,#515A63 55%,#5f6a74 100%);padding:28px 24px 26px}
+.hero:after{content:"";position:absolute;right:-80px;top:-120px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(241,149,0,.28),rgba(241,149,0,0) 70%)}
+.hero .in{position:relative;z-index:1;max-width:1150px;margin:0 auto;display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;justify-content:space-between}
+.eyebrow{display:inline-block;font-size:11px;font-weight:bold;letter-spacing:.14em;color:#1C2529;background:var(--orange);padding:4px 9px;border-radius:2px}
+.hero h1{margin:12px 0 6px;font-size:30px;line-height:1.15;font-weight:bold;letter-spacing:-.01em}
+.hero h1 span{color:var(--orange)}
+.hero p{margin:0;font-size:14px;color:#d9dde1}
+.live{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);padding:12px 14px;min-width:230px;font-size:12px;color:#d9dde1;line-height:1.6}
+.live b{color:#fff;font-size:13px}.pulse{display:inline-block;width:9px;height:9px;border-radius:50%;background:#2ecc40;margin-right:6px;box-shadow:0 0 0 0 rgba(46,204,64,.7);animation:pl 2s infinite}
+@keyframes pl{0%{box-shadow:0 0 0 0 rgba(46,204,64,.6)}70%{box-shadow:0 0 0 8px rgba(46,204,64,0)}100%{box-shadow:0 0 0 0 rgba(46,204,64,0)}}
+@media(max-width:700px){.hero h1{font-size:23px}}
 .stripe{height:4px;background:var(--orange)}
 main{max-width:1150px;margin:0 auto;padding:0 24px 40px}
 .nav{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);padding:10px 0}
@@ -52,7 +62,10 @@ footer{font-size:10px;color:var(--slate);border-top:1px solid var(--line);paddin
 </head>
 <body>
 <header><img src="logo.png" alt="POS Media"></header>
-<div class="bar"><h1>Polaris · dostupnost na Rohlik.cz</h1><p id="sub">Načítám…</p></div>
+<div class="hero"><div class="in"><div><span class="eyebrow">POLARIS · ROHLIK.CZ</span>
+<h1>Out of stock monitoring <span>&amp;</span> alerting na Rohlik.cz</h1>
+<p id="sub">Načítám…</p></div>
+<div class="live" id="live"></div></div></div>
 <div class="stripe"></div>
 <main>
 <div class="nav">
@@ -118,7 +131,8 @@ fetch('data/polaris.json',{cache:'no-store'}).then(r=>r.json()).then(D=>{
  const idx={};days.forEach((d,i)=>idx[d.date]=i);
  const labels=[];for(let t=new Date(days[0].date+'T12:00');t<=new Date(days[days.length-1].date+'T12:00');t.setDate(t.getDate()+1))labels.push(t.toISOString().slice(0,10));
  let sel=days.length-1, range=0, fz='', fs='';
- $('sub').textContent=`${days.length} měřených dní od ${full(days[0].date)} · poslední měření ${full(days[days.length-1].date)} ${days[days.length-1].measured||''}`;
+ $('sub').textContent=`Denní dostupnost ${Object.keys(D.skus).length} produktů v ${Z.length} skladech Rohlíku · ${days.length} měřených dní od ${full(days[0].date)}`;
+ $('live').innerHTML=`<span class="pulse"></span><b>Měření běží automaticky</b><br>Poslední měření: ${full(days[days.length-1].date)} ${days[days.length-1].measured||''}<br>Další měření: každý den v 05:30`;
  $('pick').min=days[0].date;$('pick').max=days[days.length-1].date;
  Z.forEach(z=>$('fz').insertAdjacentHTML('beforeend',`<option value="${z.key}">${z.name}</option>`));
  Object.keys(D.skus).forEach(s=>$('fs').insertAdjacentHTML('beforeend',`<option value="${s}">${s} · ${name(s)}</option>`));
