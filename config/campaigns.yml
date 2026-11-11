@@ -1,0 +1,9 @@
+# Retail media campaigns to overlay on the availability dashboard.
+# The dashboard flags every day a campaign SKU was out of stock while the campaign ran.
+# Example (remove the leading "# " to activate):
+# campaigns:
+#   - name: "Rohlik Ads – Polaris Paté Q4"
+#     skus: [1454631, 1454634, 1454635]
+#     start: "2026-11-01"
+#     end: "2026-11-30"
+campaigns: []
