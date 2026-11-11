@@ -35,7 +35,8 @@ for f in sorted((ROOT / "state" / "history" / "polaris").glob("*.json")):
                     low.append({"sku": int(sid), "zone": k, "units": p["units"]})
             elif p["state"] == "out_of_stock":
                 c["listed"] += 1; c["oos"] += 1
-                oos.append({"sku": int(sid), "zone": k, "restock": p.get("restock"), "days_at_zero": None})
+                oos.append({"sku": int(sid), "zone": k, "restock": p.get("restock_date"),
+                            "days_at_zero": p.get("days_at_zero")})
             elif p["state"] == "not_listed":
                 c["not_listed"] += 1
         zs[k] = c
