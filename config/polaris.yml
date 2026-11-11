@@ -28,17 +28,17 @@ brands:
   - name: Polaris
     related_name_matches: []        # look-alikes under another brand field, needing a decision
     skus:                           # order = row order in the report
-      - {id: 1454631, name: "Polaris Single Protein Paté konzerva pro psy kuřecí (400 g)"}
-      - {id: 1454635, name: "Polaris Single Protein Paté konzerva pro psy krůtí (400 g)"}
-      - {id: 1423451, name: "Polaris Adult All Breed granule, hovězí a krůtí (2,5 kg)"}
-      - {id: 1423458, name: "Polaris Adult Small Breed granule, losos a krůtí (5 kg)"}
-      - {id: 1423448, name: "Polaris Junior Large Breed granule, jehněčí a losos (2,5 kg)"}
-      - {id: 1454634, name: "Polaris Single Protein Paté konzerva pro psy jehněčí (400 g)", not_listed_in: [brno, ostrava]}
-      - {id: 1474800, name: "Polaris Imunity Small & Mini, krůtí (0,75 kg)",               not_listed_in: [brno, ostrava]}
-      - {id: 1423452, name: "Polaris Adult All Breed granule, hovězí a krůtí (12 kg)",      not_listed_in: [brno, ostrava]}
-      - {id: 1423454, name: "Polaris Adult All Breed granule, kachní a krůtí (12 kg)",      not_listed_in: [brno, ostrava]}
-      - {id: 1467999, name: "Polaris All Breed granule, jehněčí a rýže (12 kg)",            not_listed_in: [brno, ostrava]}
-      - {id: 1423457, name: "Polaris Adult Small Breed granule, losos a jehněčí (5 kg)",    not_listed_in: [brno, ostrava]}
-      - {id: 1423456, name: "Polaris Adult All Breed granule, losos a krůtí (12 kg)",       not_listed_in: [brno, ostrava]}
-      - {id: 1474799, name: "Polaris Imunity Small & Mini, hovězí (0,75 kg)",               not_listed_in: [brno]}
-      - {id: 1474802, name: "Polaris Imunity Small & Mini, losos (0,75 kg)",                not_listed_in: [chrastany, praha_liboc, horni_pocernice, ostrava]}
+      - {id: 1423451, short: "Adult All Breed hovězí a krůtí 2,5 kg", name: "Polaris Adult All Breed granule, hovězí a krůtí (2,5 kg)"}
+      - {id: 1423452, short: "Adult All Breed hovězí a krůtí 12 kg", name: "Polaris Adult All Breed granule, hovězí a krůtí (12 kg)",      not_listed_in: [brno, ostrava]}
+      - {id: 1423454, short: "Adult All Breed kachní a krůtí 12 kg", name: "Polaris Adult All Breed granule, kachní a krůtí (12 kg)",      not_listed_in: [brno, ostrava]}
+      - {id: 1423456, short: "Adult All Breed losos a krůtí 12 kg", name: "Polaris Adult All Breed granule, losos a krůtí (12 kg)",       not_listed_in: [brno, ostrava]}
+      - {id: 1423457, short: "Adult Small Breed losos a jehněčí 5 kg", name: "Polaris Adult Small Breed granule, losos a jehněčí (5 kg)",    not_listed_in: [brno, ostrava]}
+      - {id: 1423458, short: "Adult Small Breed losos a krůtí 5 kg", name: "Polaris Adult Small Breed granule, losos a krůtí (5 kg)"}
+      - {id: 1423448, short: "Junior Large Breed jehněčí a losos 2,5 kg", name: "Polaris Junior Large Breed granule, jehněčí a losos (2,5 kg)"}
+      - {id: 1467999, short: "All Breed jehněčí a rýže 12 kg", name: "Polaris All Breed granule, jehněčí a rýže (12 kg)",            not_listed_in: [brno, ostrava]}
+      - {id: 1454631, short: "Single Protein Paté kuřecí 400 g", name: "Polaris Single Protein Paté konzerva pro psy kuřecí (400 g)"}
+      - {id: 1454634, short: "Single Protein Paté jehněčí 400 g", name: "Polaris Single Protein Paté konzerva pro psy jehněčí (400 g)", not_listed_in: [brno, ostrava]}
+      - {id: 1454635, short: "Single Protein Paté krůtí 400 g", name: "Polaris Single Protein Paté konzerva pro psy krůtí (400 g)"}
+      - {id: 1474799, short: "Imunity Small & Mini hovězí 0,75 kg", name: "Polaris Imunity Small & Mini, hovězí (0,75 kg)",               not_listed_in: [brno]}
+      - {id: 1474800, short: "Imunity Small & Mini krůtí 0,75 kg", name: "Polaris Imunity Small & Mini, krůtí (0,75 kg)",               not_listed_in: [brno, ostrava]}
+      - {id: 1474802, short: "Imunity Small & Mini losos 0,75 kg", name: "Polaris Imunity Small & Mini, losos (0,75 kg)",                not_listed_in: [chrastany, praha_liboc, horni_pocernice, ostrava]}
