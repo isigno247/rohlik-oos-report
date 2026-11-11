@@ -12,8 +12,8 @@ from urllib.parse import urlparse, parse_qs
 FX = Path(__file__).parent / "fixtures"
 # address keyword -> (warehouseId, zoneId, fixture)
 ZONES = {"Chrášťany": (8801, 1, "chrastany"), "Libocká": (8791, 2, "praha_liboc"),
-         "Náchodská": (8795, 3, "horni_pocernice"), "Brno": (8793, 157465, "brno"),
-         "Ostrava": (8797, 5, "ostrava")}
+         "Náchodská": (8799, 3, "horni_pocernice"), "Brno": (8793, 157465, "brno"),
+         "Ostrava": (8802, 5, "ostrava")}
 DATA = {wh: json.loads((FX / f"{fx}.json").read_text(encoding="utf-8")) for wh, _, fx in ZONES.values()}
 BY_ZONE = {z: wh for wh, z, _ in ZONES.values()}
 SESS = {}          # sid -> warehouseId
@@ -86,7 +86,7 @@ class H(BaseHTTPRequestHandler):
                 if kw in text:
                     return self._send(200, {"id": 1000 + zone, "warehouseId": wh, "zoneId": zone, "isValid": True}, sid)
             return self._send(400, {"status": 400}, sid)
-        if p == "/services/frontend-service/delivery-address/check":
+        if p in ("/services/frontend-service/delivery-address/check", "/services/frontend-service/delivery-address/set"):
             if body.get("zoneId") in BY_ZONE:
                 SESS[sid] = BY_ZONE[body["zoneId"]]
             return self._send(200, {"status": 200, "data": {}}, sid)
