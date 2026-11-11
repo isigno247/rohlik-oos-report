@@ -27,7 +27,9 @@ for f in sorted((ROOT / "state" / "history" / "polaris").glob("*.json")):
     zs, oos, low, grid = {}, [], [], {}
     for sid, pz in pos.items():
         grid[sid] = {k: [pz[k]["state"][:1].upper() if pz[k]["state"] != "not_listed" else "N",
-                         pz[k].get("units"), pz[k].get("price"), pz[k].get("sale_price")] for k in zones}
+                         pz[k].get("units"), pz[k].get("price"), pz[k].get("sale_price"),
+                         [[x["type"], x["price"], x["orig"], x["pct"], x["trigger"], x["till"]]
+                          for x in pz[k].get("promos") or []]] for k in zones}
     for k in zones:
         c = {"listed": 0, "in_stock": 0, "oos": 0, "not_listed": 0}
         for sid, pz in pos.items():
@@ -39,7 +41,9 @@ for f in sorted((ROOT / "state" / "history" / "polaris").glob("*.json")):
             elif p["state"] == "out_of_stock":
                 c["listed"] += 1; c["oos"] += 1
                 oos.append({"sku": int(sid), "zone": k, "restock": p.get("restock_date"),
-                            "days_at_zero": p.get("days_at_zero"), "promo": p.get("sale_price") is not None})
+                            "days_at_zero": p.get("days_at_zero"),
+                            "promo": any(x["type"] != "premium" for x in p.get("promos") or [])
+                            if "promos" in p else p.get("sale_price") is not None})
             elif p["state"] == "not_listed":
                 c["not_listed"] += 1
         zs[k] = c
