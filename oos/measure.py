@@ -112,8 +112,15 @@ def _amount(x):
 
 def parse(stock_row: dict | None, price_row: dict | None) -> dict:
     s, p = stock_row or {}, price_row or {}
-    sales = p.get("sales") or s.get("sales") or []
-    sale = sales[0] if sales else None
+    sales = [x for x in (p.get("sales") or s.get("sales") or []) if isinstance(x, dict) and x.get("active", True)]
+    promos = []
+    for x in sales:
+        pr, orig = _amount(x.get("price")), _amount(x.get("originalPrice")) or _amount(p.get("price"))
+        promos.append({"type": x.get("type") or "sale", "price": pr, "orig": orig,
+                       "pct": round((1 - pr / orig) * 100) if pr and orig else None,
+                       "trigger": int(x.get("triggerAmount") or 1), "till": (x.get("validTill") or "")[:10] or None})
+    # the shopper-facing promotion: anything except the personal Xtra member price
+    sale = next((x for x in sales if x.get("type") != "premium"), None)
     rep = s.get("expectedReplenishment")
     rep_date = rep if isinstance(rep, str) else (rep or {}).get("date") if isinstance(rep, dict) else None
     in_stock = bool(s.get("inStock"))
@@ -122,6 +129,7 @@ def parse(stock_row: dict | None, price_row: dict | None) -> dict:
         "price": _amount(p.get("price")),
         "sale_price": _amount(sale.get("price")) if isinstance(sale, dict) else None,
         "sale_id": (sale.get("id") or sale.get("saleId")) if isinstance(sale, dict) else None,
+        "promos": promos,
         "reason": (s.get("unavailabilityReason") if stock_row is not None else
                    "Not returned for this warehouse today (possible delisting)"),
         "restock_date": (rep_date or "")[:10] or None,

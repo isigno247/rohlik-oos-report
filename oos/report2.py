@@ -39,6 +39,25 @@ def dmx(d: date):
     return f"{d.day:02d}.{d.month:02d}"
 
 
+PROMO_EN = {"sale": "Sale", "multipack": "Multibuy", "longtermAction": "Long-term low price",
+            "expiration": "Clearance", "premium": "Xtra member price"}
+
+
+def promo_label(x):
+    t = PROMO_EN.get(x["type"], x["type"])
+    if x["type"] == "multipack":
+        t += f" (buy {x['trigger']})"
+    if x.get("pct"):
+        t += f" −{x['pct']} %"
+    if x.get("till") and x["type"] in ("sale", "multipack"):
+        t += f", until {date.fromisoformat(x['till']).day:02d}.{date.fromisoformat(x['till']).month:02d}."
+    return t
+
+
+def shopper_promos(p):
+    return [x for x in p.get("promos") or [] if x["type"] != "premium"]
+
+
 def pct(x):
     return "–" if x is None else f"{x:.1f}%"
 
@@ -89,8 +108,8 @@ def render(cfg, cls, notes, meta, logo_path: Path, history: list, today: date) -
     oos_rows.sort(key=lambda r: -r[2]["days_at_zero"])
     low_rows = [(str(s["id"]), z, pos[str(s["id"])][z["key"]]) for s in skus for z in zones
                 if pos[str(s["id"])][z["key"]]["low"]]
-    promos = [(sid, z) for s in skus for z in zones for sid in [str(s["id"])]
-              if pos[sid][z["key"]]["state"] in (IN, OOS) and pos[sid][z["key"]]["sale_price"] is not None]
+    promos = [(sid, z, x) for s in skus for z in zones for sid in [str(s["id"])]
+              if pos[sid][z["key"]]["state"] in (IN, OOS) for x in shopper_promos(pos[sid][z["key"]])]
     stale = [(sid, z, p) for sid, z, p in oos_rows if p["days_at_zero"] > stale_thr]
 
     # history incl. today, for trend + "vs yesterday"
@@ -151,7 +170,16 @@ def render(cfg, cls, notes, meta, logo_path: Path, history: list, today: date) -
         watch.append("No low-stock positions.")
     for sid, z, p in stale:
         watch.append(f"{escape(short[sid])} in {z['name']} at zero for {p['days_at_zero']} days, possible delisting.")
-    watch.append("No promotions." if not promos else f"{len(promos)} position{'s' if len(promos) != 1 else ''} on promotion.")
+    if promos:
+        kinds = {}
+        for _, _, x in promos:
+            kinds[PROMO_EN.get(x["type"], x["type"]).lower()] = kinds.get(PROMO_EN.get(x["type"], x["type"]).lower(), 0) + 1
+        oos_promo = sum(1 for sid, z, x in promos if pos[sid][z["key"]]["state"] == OOS)
+        watch.append(f"{len(promos)} position{'s' if len(promos) != 1 else ''} on promotion ("
+                     + ", ".join(f"{v} {k}" for k, v in kinds.items()) + ")"
+                     + (f", {oos_promo} of them out of stock." if oos_promo else "."))
+    else:
+        watch.append("No promotions.")
     watch.append("No listing changes." if not notes["changes"] else "Listing changes, see notes.")
     h += f'{P}<b style="color:#515A63">Watch:</b> {" ".join(watch)}</p>'
     h += (f'{P}<b style="color:#515A63">Trend:</b> {avg:.1f}% average since {dmx(since)}, lowest {low_v:.1f}% '
@@ -269,7 +297,9 @@ def render(cfg, cls, notes, meta, logo_path: Path, history: list, today: date) -
             if p["state"] == NL:
                 row += '<td><i style="color:#9aa0a6">not listed</i></td>'
                 continue
-            price = kc(p["sale_price"]) + f' <s style="color:#9aa0a6">{kc(p["price"])}</s>' if p["sale_price"] is not None else kc(p["price"])
+            sp = shopper_promos(p)
+            price = (kc(sp[0]["price"]) + f' <s style="color:#9aa0a6">{kc(sp[0]["orig"] or p["price"])}</s>'
+                     + f'<br><span style="color:#F19500">{escape(promo_label(sp[0]))}</span>') if sp else kc(p["price"])
             if p["state"] == OOS:
                 lab = restock_label(p.get("restock_date"), today)
                 back = f"back {lab}" if lab != "not given" else "restock not given"
@@ -278,6 +308,18 @@ def render(cfg, cls, notes, meta, logo_path: Path, history: list, today: date) -
             else:
                 row += f"<td>{price}</td>"
         h += row + "</tr>"
+    h += "</tbody></table>"
+    h += h2("Promotions")
+    h += TBL + head([("SKU", "left"), ("Product", "left"), ("Warehouse", "left"), ("Type", "left"),
+                     ("Price", "left"), ("Regular", "left"), ("Stock", "left")])
+    for sid, z, x in promos:
+        st = pos[sid][z["key"]]
+        stock = '<b style="color:#d03b3b">out of stock</b>' if st["state"] == OOS else (
+            f'<span style="color:#b57d00">{st["units"]} units</span>' if st["low"] else "in stock")
+        h += (f"{TR}<td>{sid}</td><td>{escape(short[sid])}</td><td>{z['name']}</td><td>{escape(promo_label(x))}</td>"
+              f"<td>{kc(x['price'])}</td><td>{kc(x['orig'])}</td><td>{stock}</td></tr>")
+    if not promos:
+        h += f'{TR}<td colspan="7">None.</td></tr>'
     h += "</tbody></table>"
     h += h2("Not listed")
     h += TBL + head([("SKU", "left"), ("Product", "left"), ("Not listed in", "left")])
@@ -291,7 +333,8 @@ def render(cfg, cls, notes, meta, logo_path: Path, history: list, today: date) -
     h += TBL + head([("SKU", "left"), ("Product", "left"), ("Warehouse", "left"), ("Price", "left"),
                      ("Restock", "left"), ("Days at 0", "right")])
     for sid, z, p in oos_rows:
-        price = kc(p["sale_price"] if p["sale_price"] is not None else p["price"])
+        sp = shopper_promos(p)
+        price = kc(sp[0]["price"]) + f' ({escape(PROMO_EN.get(sp[0]["type"], "promo").lower())})' if sp else kc(p["price"])
         h += (f"{TR}<td>{sid}</td><td>{escape(short[sid])}</td><td>{z['name']}</td><td>{price}</td>"
               f"<td>{restock_label(p.get('restock_date'), today)}</td><td align=\"right\">{p['days_at_zero']}</td></tr>")
     if not oos_rows:

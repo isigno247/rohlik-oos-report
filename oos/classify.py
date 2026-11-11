@@ -71,7 +71,7 @@ def classify(cfg: dict, meas: dict, prev_state: dict | None, today: date) -> dic
                 zr = meas["zones"].get(k, {"status": "FAILED"})
                 carried = fp[sid][k]
                 p = {"state": None, "units": None, "price": None, "sale_price": None,
-                     "sale_id": None, "restock": None, "restock_date": None, "zero_since": None, "low": False}
+                     "sale_id": None, "restock": None, "restock_date": None, "zero_since": None, "low": False, "promos": []}
                 if zr["status"] != "OK":
                     p["state"] = FAIL
                 elif carried is None:
@@ -81,7 +81,7 @@ def classify(cfg: dict, meas: dict, prev_state: dict | None, today: date) -> dic
                 else:
                     m = zr["products"][int(sid)]
                     p.update(units=m["units"], price=m["price"], sale_price=m["sale_price"],
-                             sale_id=m["sale_id"])
+                             sale_id=m["sale_id"], promos=m.get("promos", []))
                     if m["units"] > 0:
                         p["state"] = IN
                         p["low"] = m["units"] <= low
