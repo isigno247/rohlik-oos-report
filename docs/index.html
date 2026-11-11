@@ -131,7 +131,7 @@ fetch('data/polaris.json',{cache:'no-store'}).then(r=>r.json()).then(D=>{
   const pd=d.oos.filter(o=>o.promo||inCamp(o.sku,d.date).length);let all=0;days.forEach(x=>x.oos.forEach(o=>{if(o.promo||inCamp(o.sku,x.date).length)all++}));
   $('promo').innerHTML=`<p style="margin:0 0 8px;font-size:12px"><b>${pd.length}</b> position${pd.length===1?'':'s'} out of stock while on promotion or in a running campaign on ${full(d.date)} · <b>${all}</b> such position-days across all ${days.length} measured days.</p>`+
    (pd.length?'<table><tr><th>SKU</th><th>Product</th><th>Warehouse</th><th>Why it matters</th></tr>'+pd.map(o=>`<tr><td>${o.sku}</td><td>${name(o.sku)}${badge(o)}</td><td>${zn[o.zone]}</td><td>${inCamp(o.sku,d.date).map(c=>'Campaign “'+c.name+'” is running – shoppers who click cannot buy').join('; ')||'Promo price is shown, but the product cannot be bought'}</td></tr>`).join('')+'</table>':'')+
-   `<p class="note">${D.campaigns.length?D.campaigns.length+' campaign(s) loaded.':'No campaigns loaded yet – add them to config/campaigns.yml to flag stock-outs during paid campaigns.'} Promotion flags are available from 19.10.2026 onwards.</p>`;
+   `<p class="note">${D.campaigns.length?D.campaigns.length+' campaign(s) loaded.':'No campaigns loaded yet – add them to campaigns.yml to flag stock-outs during paid campaigns.'} Promotion flags are available from 19.10.2026 onwards.</p>`;
   const SC={I:['#0ca30c','in stock'],O:['#d03b3b','OOS'],N:['#c9cdd1','not listed']};
   let s='<tr><th>SKU</th><th>Product</th>'+Z.map(z=>`<th>${z.name}</th>`).join('')+'<th>Days OOS (all)</th></tr>';
   Object.keys(D.skus).forEach(sku=>{const tot=days.reduce((a,x)=>a+x.oos.filter(o=>o.sku==sku).length,0);
