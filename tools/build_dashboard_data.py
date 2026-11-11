@@ -53,8 +53,8 @@ out = {
     "zones": [{"key": z["key"], "name": z["name"]} for z in cfg["zones"]],
     "skus": {str(s["id"]): s.get("short") or s["name"].replace("Polaris ", "") for b in cfg["brands"] for s in b["skus"]},
     "nl": {str(s["id"]): s.get("not_listed_in", []) for b in cfg["brands"] for s in b["skus"]},
-    "campaigns": (yaml.safe_load((ROOT / "config" / "campaigns.yml").read_text(encoding="utf-8")) or {}).get("campaigns") or []
-    if (ROOT / "config" / "campaigns.yml").exists() else [],
+    "campaigns": (yaml.safe_load((ROOT / "campaigns.yml").read_text(encoding="utf-8")) or {}).get("campaigns") or []
+    if (ROOT / "campaigns.yml").exists() else [],
     "days": [days[d] for d in sorted(days)],
 }
 dest = ROOT / "docs" / "data" / "polaris.json"
