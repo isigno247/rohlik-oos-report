@@ -49,7 +49,7 @@ def run_checks(html: str, cfg: dict, cls: dict, meas: dict) -> dict:
     r["10_header_time_and_snapshot"] = bool(re.search(r"\d\d\.\d\d\.\d{4} — measured \d\d:\d\d", html)) and \
         "point-in-time snapshot" in html
     r["11_notes_section_present"] = "Notes for this run" in html
-    # a failed zone is reported as FAILED (allowed); a run with no verified zone or no restore is not
-    r["12_zones_verified_and_restored"] = (any(v["status"] == "OK" for v in meas["zones"].values())
+    # strict: every zone must be verified - a partial report is never published
+    r["12_zones_verified_and_restored"] = (all(v["status"] == "OK" for v in meas["zones"].values())
                                            and meas["restored"])
     return r

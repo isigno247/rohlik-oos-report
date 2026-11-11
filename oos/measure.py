@@ -5,6 +5,7 @@ Per zone, an anonymous session does what the site's own address picker does:
   2. POST /api/v4/address/autocomplete/confirm  (payload)    -> id, warehouseId, zoneId
   3. POST /services/frontend-service/delivery-address/check {addressId}
   4. POST /services/frontend-service/delivery-address/check {addressId, zoneId}
+  5. POST /services/frontend-service/delivery-address/set   {addressId, zoneId}  <- pins the warehouse
 Then stock and prices are read for the SKUs the footprint says the zone carries. Every stock row
 carries a warehouseId; the zone counts as verified only if it equals the warehouse Rohlik named in
 step 2 (and the config's expected_warehouse_id, when set). Each zone gets a fresh session, so no
@@ -78,6 +79,9 @@ class Session:
             raise ToolError(f"address confirm returned no warehouse for '{query}'")
         self._req("POST", "/services/frontend-service/delivery-address/check", body={"addressId": conf["id"]})
         self._req("POST", "/services/frontend-service/delivery-address/check",
+                  body={"addressId": conf["id"], "zoneId": conf.get("zoneId")})
+        # the call that actually pins the warehouse to an anonymous session (verified 2026-11-11)
+        self._req("POST", "/services/frontend-service/delivery-address/set",
                   body={"addressId": conf["id"], "zoneId": conf.get("zoneId")})
         return {"warehouse_id": int(conf["warehouseId"]), "zone_id": conf.get("zoneId"),
                 "address": sugg[0].get("suggestText")}
