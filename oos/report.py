@@ -255,9 +255,9 @@ def render(cfg, cls, notes, meta, logo_path: Path) -> str:
     failed = [z["name"] for z in zones if meta["zone_status"][z["key"]] != "OK"]
     promos = sum(1 for sid in pos for z in zones if pos[sid][z["key"]]["sale_price"] is not None
                  and pos[sid][z["key"]]["state"] in (IN, OOS))
-    p1 = (f"Each of the {len(zones)} tracked zones ({zlist}) was selected via the delivery-address switch and verified "
-          f"before any product was measured: the address actually selected in checkout was confirmed to match the zone, "
-          f"and canary SKU {cfg['canary_sku']} (units and saleId) was recorded against the previous zone. ")
+    p1 = (f"Each of the {len(zones)} tracked zones ({zlist}) was measured in its own fresh session after selecting the "
+          f"zone's delivery address, and verified before any number was used: every stock record had to come from the "
+          f"warehouse Rohlik assigned to that address, and no two zones could resolve to the same warehouse. ")
     p1 += (f"All {len(zones)} zones verified successfully this run; no zone failed verification." if not failed else
            f"{len(failed)} zone(s) could not be verified and are excluded from every count: {', '.join(failed)}.")
     p2 = (f"Listing status (in stock / out of stock / not listed) comes from a stored footprint baseline — established "
