@@ -1,6 +1,6 @@
 {
  "date": "2026-11-12",
- "measured_at": "06:30 CET",
+ "measured_at": "08:57 CET",
  "footprint": {
   "1423451": {
    "chrastany": true,
@@ -131,7 +131,7 @@
    },
    "horni_pocernice": {
     "state": "in_stock",
-    "units": 6,
+    "units": 10,
     "price": 429.9,
     "sale_price": null,
     "sale_id": null,
@@ -316,17 +316,16 @@
     "promos": []
    },
    "horni_pocernice": {
-    "state": "out_of_stock",
-    "units": 0,
+    "state": "in_stock",
+    "units": 6,
     "price": 1299.9,
     "sale_price": null,
     "sale_id": null,
-    "restock": "Očekáváme ve st.",
-    "restock_date": "2026-11-18",
-    "zero_since": "2026-11-12",
+    "restock": null,
+    "restock_date": null,
+    "zero_since": null,
     "low": false,
-    "promos": [],
-    "days_at_zero": 1
+    "promos": []
    },
    "brno": {
     "state": "not_listed",
@@ -884,7 +883,7 @@
    },
    "horni_pocernice": {
     "state": "in_stock",
-    "units": 9,
+    "units": 14,
     "price": 164.9,
     "sale_price": null,
     "sale_id": null,
@@ -985,7 +984,7 @@
  "zone_in_stock": {
   "chrastany": 12,
   "praha_liboc": 8,
-  "horni_pocernice": 11,
+  "horni_pocernice": 12,
   "brno": 5,
   "ostrava": 5
  },
@@ -995,7 +994,7 @@
    "verification": {
     "method": "web_session",
     "warehouse_id": 8801,
-    "zone_id": 157660
+    "zone_id": 157671
    },
    "canary": null
   },
@@ -1004,7 +1003,7 @@
    "verification": {
     "method": "web_session",
     "warehouse_id": 8791,
-    "zone_id": 157662
+    "zone_id": 157672
    },
    "canary": null
   },
