@@ -1,73 +1,54 @@
-# Rohlik OOS report — GitHub Actions
+# Rohlík.cz out-of-stock monitoring – Polaris
 
-Denní availability report Rohlik.cz (POS Media letterhead), stejná logika jako skill
-`rohlik-oos-report`: 3 stavy (in stock / out of stock / not listed) proti uložené footprint
-baseline, nikdy keyword search, low stock ≤ 5 ks. Layout je styl po stylu převzatý ze
-schváleného Polaris reportu z 25. 9. 2026 a generuje ho kód, takže je každý den identický.
+POS Media Czech Republic · automated daily availability monitoring on Rohlik.cz.
 
-## Jak to funguje
+**Dashboard:** https://isigno247.github.io/rohlik-oos-report/
 
-1. GitHub Actions každý den v 05:30 CET / 06:30 CEST projde všechny `config/*.yml` (dnes Polaris
-   a Milko) a pro každou značku spustí `python -m oos.run --client <name>` — postupně, ne paralelně,
-   protože všechny sdílí jeden Rohlík účet. Selhání jedné značky nezastaví ostatní, ale běh skončí
-   červeně a přijde ti e-mail.
-2. Skript se připojí na **oficiální Rohlík MCP server** (`mcp.rohlik.cz`, tytéž nástroje jako
-   Claude konektor) přes zdokumentované přihlášení hlavičkami `rhl-email` / `rhl-pass`.
-3. Pro každý sklad: přepne adresu → ověří přepnutí přes `get_checkout` (addressId musí sedět)
-   → stáhne units/ceny jen pro SKU, která footprint vede jako carried → na konci vrátí adresu
-   na Vrchlabí (i při chybě).
-4. Vygeneruje HTML, spustí 13 self-checků ze specu (logo fingerprint, type scale, integrita
-   klasifikace…). Když cokoliv neprojde, report se **nepublikuje** a GitHub ti pošle e-mail o failu.
-5. Report se uloží do `reports/polaris/` (+ `latest.html`) a jako stažitelný artefakt běhu.
-   Stav (dny v OOS pro stale flag, in-stock počty pro detekci anomálií) jde do `state/`.
+## What it does
 
-Rozdíl proti skillu: přepnutí skladu se primárně ověřuje adresou z checkoutu, canary SKU se jen
-zaznamenává. Důvod: při testu 10. 11. měl canary 1423451 v Počernicích, Brně i Ostravě shodně
-6 ks / saleId null, takže podle canary pravidla by Brno i Ostrava falešně spadly jako FAILED.
-Když `get_checkout` nejde přečíst, skript se vrátí k původnímu canary pravidlu.
+Every day at 04:30 UTC (05:30 CET / 06:30 CEST) GitHub Actions:
 
-## Nastavení (jednorázově, ~10 min)
+1. **Measures** all tracked SKUs in 5 Rohlík warehouses (Chrášťany 8801, Praha Liboc 8791,
+   Horní Počernice 8799, Brno 8793, Ostrava 8802): stock state, exact units (Rohlík caps at 50),
+   regular price and every active promotion with its type (sale, multibuy, long-term low price,
+   clearance; Xtra member prices are recorded but not counted as promotions).
+2. **Classifies** each SKU × warehouse as *in stock*, *out of stock* or *not listed* against the
+   stored footprint in `config/polaris.yml` – never via keyword search.
+3. **Self-checks** the result. Strict mode: every warehouse must be verified (stock rows must come
+   from the expected warehouse ID). If anything fails, nothing is published and GitHub e-mails the
+   repo owner.
+4. **Publishes** the client e-mail report (`reports/polaris/latest.html`, English, POS Media
+   letterhead) and refreshes the dashboard data (`docs/data/polaris.json`, Czech UI).
 
-1. Na GitHubu vytvoř **privátní** repo (např. `rohlik-oos-report`) a nahraj obsah tohoto zipu.
-2. *Settings → Secrets and variables → Actions → New repository secret*:
-   - `RHL_EMAIL` — e-mail Rohlík účtu, který má uložených 5 zónových adres
-   - `RHL_PASS` — heslo k tomuto účtu
-3. *Actions → Rohlik OOS daily report → Run workflow* (první ruční běh).
-4. Při prvním přihlášení z nové IP může Rohlík poslat **e-mail s potvrzením nového přihlášení**.
-   Potvrď ho a spusť workflow znovu.
-5. Hotový report: záložka běhu → *Artifacts*, nebo soubor `reports/polaris/latest.html` v repu.
+## How measurement works
 
-## Nová značka
+Rohlík's public web endpoints, anonymous session per warehouse – no login, no MCP, no account:
 
-Zkopíruj `config/polaris.yml` → `config/<brand>.yml`, vyplň SKU a `not_listed_in` z onboardingu
-(baseline se pořád zakládá s Claudem, nikdy ne odhadem). Nic dalšího — denní běh si nový soubor
-najde sám. Ručně jen jednu značku: *Run workflow* → `client=<brand>`.
+`GET /api/v3/address/autocomplete` → `POST /api/v4/address/autocomplete/confirm` →
+`POST /services/frontend-service/delivery-address/check` →
+`POST /services/frontend-service/delivery-address/set` (pins the warehouse) →
+`GET /api/v1/products/stock` + `GET /api/v1/products/prices`.
 
-Milko footprint je zatím jen „user-stated" (25. 9.), neověřený screenshotem po skladech — report to
-uvádí v Method. Stojí za to ho při příležitosti ověřit.
+Headers: `X-Origin: WEB` and a random `X-Custom-SessionId`. These endpoints are undocumented;
+if Rohlík changes them, the self-checks fail loudly instead of reporting wrong data.
 
-## Refresh baseline
+## Repository layout
 
-Uprav `not_listed_in` v configu a datum `footprint.established`. Další běh změnu sám zapíše do
-„Listing changes since last run".
+| Path | Purpose |
+|---|---|
+| `config/polaris.yml` | SKUs (row order, short names), footprint, warehouses, thresholds |
+| `campaigns.yml` | Retail media campaigns – the dashboard flags OOS during a running campaign |
+| `oos/` | measure → classify → report (`report2.py`) → checks → `run.py` |
+| `tools/` | Outlook history parser and dashboard data builder |
+| `history/` | Reports from Outlook (25.09.–11.11.2026) that seed the dashboard history |
+| `reference/` | The approved e-mail layout the report replicates |
+| `docs/` | Dashboard (GitHub Pages) |
+| `tests/` | Mock of the Rohlík endpoints used by the CI self-test |
 
-## Lokální test bez Rohlíku
+## Run manually
 
-```
-pip install -r requirements.txt
-python tests/mock_rohlik_mcp.py &      # mock se skutečnými daty změřenými 10. 11. 2026
-ROHLIK_MCP_URL=http://127.0.0.1:8765/mcp python -m oos.run --client polaris
-```
-`MOCK_BREAK_ZONE=5530325` nasimuluje neověřitelné Brno (zóna musí vyjít jako FAILED).
+Actions → *Rohlik OOS daily report* → *Run workflow*.
 
-## Známá rizika
+## Add a campaign
 
-- **Podmínky Rohlíku:** MCP služba je určena pro běžné zákaznické užití a jiné použití vyžaduje
-  předchozí písemný souhlas Rohlíku. To platí i pro dnešní běhy přes Clauda, automatizace to jen
-  zviditelňuje. Doporučuji si souhlas vyžádat přes partnerský kontakt.
-- **Sdílený účet:** běh přepíná doručovací adresu účtu. Nespouštěj současně Claude-based report
-  na stejném účtu (workflow sám sebe hlídá přes `concurrency`, Clauda ne).
-- **Legacy přihlášení heslem** může Rohlík časem vypnout ve prospěch OAuth. Pak spadne krok
-  „Measure" s jasnou chybou a e-mailem od GitHubu.
-- GitHub cron může začít o pár minut později; neaktivní repo (60 dní bez commitu) GitHub
-  pozastaví, ale denní commit reportu tomu brání.
+Edit `campaigns.yml` (name, SKUs, start, end). The next run shows it on the dashboard.
