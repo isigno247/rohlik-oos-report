@@ -11,6 +11,7 @@ from zoneinfo import ZoneInfo
 
 import yaml
 
+from .alerts import detect, publish
 from .checks import run_checks
 from .classify import build_notes, classify, new_state
 from .measure import run_measure
@@ -23,6 +24,8 @@ TZ = ZoneInfo("Europe/Prague")
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--client", required=True)
+    ap.add_argument("--no-report", action="store_true",
+                    help="afternoon run: update state, dashboard data and alerts, keep the morning report")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     log = logging.getLogger("oos")
@@ -54,15 +57,20 @@ def main() -> int:
         return 1
 
     name = f"{cfg['report_slug']}_oos_report_{today.isoformat()}.html"
-    (out_dir / name).write_text(html, encoding="utf-8")
-    (out_dir / "latest.html").write_text(html, encoding="utf-8")
+    if not args.no_report:                        # one client report per day: the morning one
+        (out_dir / name).write_text(html, encoding="utf-8")
+        (out_dir / "latest.html").write_text(html, encoding="utf-8")
+    events = detect(cfg, cls, prev)
+    publish(ROOT, cfg, events, now.isoformat(timespec="minutes"), now.strftime("%d.%m.%Y %H:%M"))
+    log.info("Alerts: %d new event(s)", len(events))
     st = new_state(cfg, cls, meas, today, meta["time_str"], checks)
     state_path.parent.mkdir(exist_ok=True)
     state_path.write_text(json.dumps(st, ensure_ascii=False, indent=1), encoding="utf-8")
     hist = ROOT / "state" / "history" / args.client
     hist.mkdir(parents=True, exist_ok=True)
     (hist / f"{today.isoformat()}.json").write_text(json.dumps(st, ensure_ascii=False), encoding="utf-8")
-    log.info("Report written: reports/%s/%s", cfg["report_slug"], name)
+    log.info("Report %s: reports/%s/%s", "kept (afternoon run)" if args.no_report else "written",
+             cfg["report_slug"], name)
     return 0
 
 
