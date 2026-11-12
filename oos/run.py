@@ -13,7 +13,7 @@ import yaml
 
 from .alerts import detect, publish
 from .checks import run_checks
-from .classify import build_notes, classify, new_state
+from .classify import OOS, build_notes, classify, counts, new_state
 from .measure import run_measure
 from .report2 import render
 
@@ -61,7 +61,10 @@ def main() -> int:
         (out_dir / name).write_text(html, encoding="utf-8")
         (out_dir / "latest.html").write_text(html, encoding="utf-8")
     events = detect(cfg, cls, prev)
-    publish(ROOT, cfg, events, now.isoformat(timespec="minutes"), now.strftime("%d.%m.%Y %H:%M"))
+    tot = counts(cfg, cls["positions"])
+    ctx = {"total": {"oos": tot[OOS], "listed": tot["listed"], "avail": tot["avail"]},
+           "prev_avail": counts(cfg, prev["positions"])["avail"] if prev and prev.get("positions") else None}
+    publish(ROOT, cfg, events, now.isoformat(timespec="minutes"), now.strftime("%d.%m.%Y %H:%M"), ctx)
     log.info("Alerts: %d new event(s)", len(events))
     st = new_state(cfg, cls, meas, today, meta["time_str"], checks)
     state_path.parent.mkdir(exist_ok=True)
