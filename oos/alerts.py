@@ -40,7 +40,7 @@ def detect(cfg: dict, cls: dict, prev: dict | None) -> list[dict]:
 
 def _dm(iso: str | None) -> str:
     if not iso:
-        return "not given"
+        return "neuvedeno"
     d = date.fromisoformat(iso[:10])
     return f"{d.day:02d}.{d.month:02d}."
 
@@ -71,10 +71,10 @@ def render_email(cfg: dict, events: list[dict], when_str: str, imgs: dict | None
     low = sorted([e for e in events if e["type"] == "low"], key=lambda e: e.get("units") or 0)
     parts = []
     if oos:
-        parts.append(f"{len(oos)} out of stock")
+        parts.append(f"{len(oos)}× vyprodáno")
     if low:
-        parts.append(f"{len(low)} critical stock")
-    subject = f"{cfg['client']} · Rohlik.cz alert — {', '.join(parts)} ({when_str})"
+        parts.append(f"{len(low)}× kritická zásoba")
+    subject = f"{cfg['client']} · Rohlik.cz upozornění — {', '.join(parts)} ({when_str})"
 
     def tile(n, label, col, bg):
         return (f'<td width="50%" style="padding:0 6px 0 0"><table width="100%" cellspacing="0" cellpadding="0" '
@@ -102,32 +102,32 @@ def render_email(cfg: dict, events: list[dict], when_str: str, imgs: dict | None
          f'style="display:block;width:190px;height:auto;border:0"></td></tr>'
          f'<tr><td style="background-color:#515A63;padding:18px 22px;{F}">'
          f'<div style="font-size:11px;font-weight:bold;letter-spacing:1.5px;color:#1C2529;background-color:#F19500;'
-         f'display:inline-block;padding:3px 8px">STOCK ALERT</div>'
+         f'display:inline-block;padding:3px 8px">UPOZORNĚNÍ NA ZÁSOBY</div>'
          f'<div style="font-size:22px;font-weight:bold;color:#ffffff;margin-top:8px">{escape(cfg["client"])} · Rohlik.cz</div>'
-         f'<div style="font-size:13px;color:#d9dde1;margin-top:4px">Measured {when_str} · changes since the previous measurement</div></td></tr>'
+         f'<div style="font-size:13px;color:#d9dde1;margin-top:4px">Změřeno {when_str} · změny oproti předchozímu měření</div></td></tr>'
          f'<tr><td style="height:4px;background-color:#F19500;font-size:1px;line-height:4px">&nbsp;</td></tr>'
          f'<tr><td style="padding:18px 22px 6px 22px"><table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse"><tr>'
-         + tile(len(oos), "newly out of stock", "#d03b3b", "#fdecec")
-         + tile(len(low), "critical stock (5 units or fewer)", "#b57d00", "#fff6e6")
+         + tile(len(oos), "nově vyprodáno", "#d03b3b", "#fdecec")
+         + tile(len(low), "kritická zásoba (5 ks a méně)", "#b57d00", "#fff6e6")
          + '</tr></table></td></tr><tr><td style="padding:0 22px 8px 22px">')
     if oos:
-        h += h2("Newly out of stock")
-        h += table(["Product", "Warehouse", "Expected restock"],
+        h += h2("Nově vyprodané")
+        h += table(["Produkt", "Sklad", "Očekávané naskladnění"],
                    [[_product(e, imgs), escape(e["zone_name"]),
                      _chip(_dm(e.get("restock_date")), "#a86400", "#fff1d9") if e.get("restock_date")
-                     else _chip("not given", "#6b737b", "#eef0f2")] for e in oos])
+                     else _chip("neuvedeno", "#6b737b", "#eef0f2")] for e in oos])
     if low:
-        h += h2("Critical stock")
-        h += table(["Product", "Warehouse", "Units left"],
+        h += h2("Kritická zásoba")
+        h += table(["Produkt", "Sklad", "Zbývá"],
                    [[_product(e, imgs), escape(e["zone_name"]),
-                     _chip(f'{e.get("units")} {"unit" if e.get("units") == 1 else "units"}', "#ffffff",
+                     _chip(f'{e.get("units")} ks', "#ffffff",
                            "#d03b3b" if (e.get("units") or 0) <= 2 else "#F19500")] for e in low])
     h += (f'</td></tr><tr><td align="center" style="padding:20px 22px 24px 22px">'
           f'<a href="{DASHBOARD}" style="display:inline-block;{F}font-size:13px;font-weight:bold;color:#ffffff;'
-          f'background-color:#F19500;text-decoration:none;padding:11px 22px;border-radius:3px">Open availability dashboard</a></td></tr>'
+          f'background-color:#F19500;text-decoration:none;padding:11px 22px;border-radius:3px">Otevřít dashboard dostupnosti</a></td></tr>'
           f'<tr><td style="padding:12px 22px 16px 22px;border-top:1px solid #e4e7ea;{F}font-size:10px;color:#6b737b">'
-          f'POS Media Czech Republic · automated Rohlik.cz availability alert · each change is reported once · '
-          f'stock is measured twice a day</td></tr></table></td></tr></table>')
+          f'POS Media Czech Republic · automatické upozornění na dostupnost na Rohlik.cz · každá změna se hlásí '
+          f'jen jednou · zásoby se měří 2× denně</td></tr></table></td></tr></table>')
     return subject, h
 
 
