@@ -102,11 +102,11 @@ def _badges(e):
 
 def _product(e, imgs):
     m = imgs.get(str(e["sku"])) or {}
-    img = (f'<img src="{m["img"]}" width="40" height="40" alt="{escape(e["product"])}" style="display:block;width:40px;height:40px;font-size:8px;line-height:9px;color:#9aa0a6;overflow:hidden;'
-           f'border:1px solid #e4e7ea;border-radius:4px;background:#ffffff">') if m.get("img") else ""
+    img = (f'<img src="{m["img"]}" height="44" alt="{escape(e["product"])}" style="display:block;height:44px;width:auto;'
+           f'max-width:52px;margin:0 auto;border:0;font-size:8px;line-height:9px;color:#9aa0a6">') if m.get("img") else ""
     url = m.get("url") or e["url"]
     return (f'<table cellspacing="0" cellpadding="0" style="border-collapse:collapse"><tr>'
-            f'<td style="padding:0 10px 0 0;vertical-align:middle">{img}</td>'
+            f'<td width="52" align="center" style="width:52px;padding:0 10px 0 0;vertical-align:middle">{img}</td>'
             f'<td style="vertical-align:middle;{F}font-size:12px"><a href="{url}" style="color:#1C2529;text-decoration:none;'
             f'font-weight:bold">{escape(e["product"])}</a><br><span style="color:#6b737b;font-size:11px">SKU {e["sku"]}</span>{_badges(e)}'
             f'</td></tr></table>')
@@ -158,6 +158,25 @@ def render_email(cfg: dict, events: list[dict], when_str: str, imgs: dict | None
         loc = LOCATION.get(e["zone"])
         return escape(e["zone_name"]) + (f'<br><span style="color:#6b737b;font-size:11px">{loc}</span>' if loc else "")
 
+    def gtable(head, events, cells):
+        """One block per product: the product cell spans one row per warehouse."""
+        groups = {}
+        for e in events:
+            groups.setdefault(e["sku"], []).append(e)
+        td = f'{F}font-size:12px;color:#33393f;padding:7px 8px;vertical-align:middle'
+        h = ('<table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse"><tr>'
+             + "".join(f'<th align="left" style="{F}font-size:11px;color:#515A63;background-color:#eef0f2;padding:7px 8px;'
+                       f'border-bottom:2px solid #F19500">{x}</th>' for x in head) + "</tr>")
+        for evs in groups.values():
+            n = len(evs)
+            for i, e in enumerate(evs):
+                last = "border-bottom:1px solid #e6e8ea;" if i == n - 1 else ""
+                h += "<tr>"
+                if i == 0:
+                    h += f'<td rowspan="{n}" style="{td};border-bottom:1px solid #e6e8ea">{_product(e, imgs)}</td>'
+                h += "".join(f'<td style="{td};{last}">{c}</td>' for c in [wh(e)] + cells(e)) + "</tr>"
+        return h + "</table>"
+
     def h2(t):
         return (f'<div style="{F}font-size:17px;font-weight:bold;color:#515A63;border-bottom:2px solid #F19500;'
                 f'padding:22px 0 5px 0;margin-bottom:8px">{t}</div>')
@@ -187,31 +206,33 @@ def render_email(cfg: dict, events: list[dict], when_str: str, imgs: dict | None
             + tile(len(oos), "nově vyprodáno", "#d03b3b", "#fdecec")
             + tile(len(low), "kritická zásoba (5 ks a méně)", "#b57d00", "#fff6e6") + '</tr></table>')
          + _context(ctx) + '</td></tr><tr><td style="padding:0 22px 8px 22px">')
+    restock = lambda e: (_chip(_dm(e.get("restock_date")), "#a86400", "#fff1d9") if e.get("restock_date")
+                         else _chip("neuvedeno", "#6b737b", "#eef0f2"))
     if oos:
         h += h2("Nově vyprodané")
-        h += table(["Produkt", "Sklad", "Naskladnění (odhad Rohlíku)"],
-                   [[_product(e, imgs), wh(e),
-                     _chip(_dm(e.get("restock_date")), "#a86400", "#fff1d9") if e.get("restock_date")
-                     else _chip("neuvedeno", "#6b737b", "#eef0f2")] for e in oos])
+        h += gtable(["Produkt", "Sklad", "Naskladnění (odhad Rohlíku)"], oos, lambda e: [restock(e)])
     if low:
         h += h2("Kritická zásoba")
-        h += table(["Produkt", "Sklad", "Zbývá"],
-                   [[_product(e, imgs), wh(e),
-                     _chip(f'{e.get("units")} ks', "#ffffff",
-                           "#d03b3b" if (e.get("units") or 0) <= 2 else "#F19500")] for e in low])
+        h += gtable(["Produkt", "Sklad", "Zbývá"], low,
+                    lambda e: [_chip(f'{e.get("units")} ks', "#ffffff",
+                                     "#d03b3b" if (e.get("units") or 0) <= 2 else "#F19500")])
     longs = ctx.get("long") or []
     if longs:
-        h += h2(f"Dlouhodobě vyprodané ({ctx.get('long_min', 3)}+ dny)")
-        rows = []
-        for e in longs:
-            col = "#d03b3b" if e["days"] >= 7 else "#F19500"
-            cell = _chip(_days_cs(e["days"]), "#ffffff", col)
+        cap = int(ctx.get("long_cap", 8))
+        shown, rest = longs[:cap], len(longs) - cap
+
+        def days_cell(e):
+            c = _chip(_days_cs(e["days"]), "#ffffff", "#d03b3b" if e["days"] >= 7 else "#F19500")
             if e["days"] >= 14:
-                cell += "<br>" + _chip("riziko delistingu", "#b02a2a", "#fdecec")
-            rows.append([_product(e, imgs), wh(e), cell,
-                         _chip(_dm(e.get("restock_date")), "#a86400", "#fff1d9") if e.get("restock_date")
-                         else _chip("neuvedeno", "#6b737b", "#eef0f2")])
-        h += table(["Produkt", "Sklad", "Na nule", "Naskladnění (odhad Rohlíku)"], rows)
+                c += "<br>" + _chip("riziko delistingu", "#b02a2a", "#fdecec")
+            return c
+        h += h2(f"Dlouhodobě vyprodané ({ctx.get('long_min', 3)}+ dny)")
+        h += gtable(["Produkt", "Sklad", "Na nule", "Naskladnění (odhad Rohlíku)"], shown,
+                    lambda e: [days_cell(e), restock(e)])
+        if rest > 0:
+            word = "pozice" if 2 <= rest <= 4 else ("pozici" if rest == 1 else "pozic")
+            h += (f'<p style="{F}font-size:12px;color:#33393f;margin:10px 0 0 0">… a ještě <b>{rest}</b> {word} '
+                  f'najdete na <a href="{DASHBOARD}" style="color:#F19500;font-weight:bold">dashboardu</a>.</p>')
     h += (f'</td></tr><tr><td align="center" style="padding:20px 22px 24px 22px">'
           f'<a href="{DASHBOARD}" style="display:inline-block;{F}font-size:13px;font-weight:bold;color:#ffffff;'
           f'background-color:#F19500;text-decoration:none;padding:11px 22px;border-radius:3px">Otevřít dashboard dostupnosti</a></td></tr>'
