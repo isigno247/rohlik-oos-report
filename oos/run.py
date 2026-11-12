@@ -11,7 +11,7 @@ from zoneinfo import ZoneInfo
 
 import yaml
 
-from .alerts import detect, publish
+from .alerts import detect, long_term, publish
 from .checks import run_checks
 from .classify import OOS, build_notes, classify, counts, new_state
 from .measure import run_measure
@@ -63,7 +63,9 @@ def main() -> int:
     events = detect(cfg, cls, prev)
     tot = counts(cfg, cls["positions"])
     ctx = {"total": {"oos": tot[OOS], "listed": tot["listed"], "avail": tot["avail"]},
-           "prev_avail": counts(cfg, prev["positions"])["avail"] if prev and prev.get("positions") else None}
+           "prev_avail": counts(cfg, prev["positions"])["avail"] if prev and prev.get("positions") else None,
+           "long": long_term(cfg, cls, events), "long_min": int(cfg.get("long_oos_threshold_days", 3)),
+           "weekly": now.weekday() == 0 and not args.no_report}       # Monday morning: weekly digest
     publish(ROOT, cfg, events, now.isoformat(timespec="minutes"), now.strftime("%d.%m.%Y %H:%M"), ctx)
     log.info("Alerts: %d new event(s)", len(events))
     st = new_state(cfg, cls, meas, today, meta["time_str"], checks)
