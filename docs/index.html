@@ -66,6 +66,9 @@ tr.sku{cursor:pointer}tr.sku:hover{background:#fafbfb}
 .dbar i b{position:absolute;left:0;top:0;bottom:0;border-radius:4px}.dbar span{font-weight:bold;min-width:52px;font-size:12px}
 .dots{letter-spacing:2px;font-size:14px;white-space:nowrap}.dots b{color:#fab219}.dots i{color:#dfe2e5;font-style:normal}
 td.oosc{background:#fdecec}td.nlc{background:repeating-linear-gradient(135deg,#f6f7f8,#f6f7f8 6px,#eef0f2 6px,#eef0f2 12px)}
+.al{display:flex;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}.al:last-child{border-bottom:0}
+.al time{min-width:118px;font-size:12px;color:var(--slate);font-weight:bold}.al div{display:flex;flex-wrap:wrap;gap:6px}
+.ev{font-size:11px;padding:3px 8px;border-radius:10px;white-space:nowrap}.ev-oos{background:#fdecec;color:#b02a2a}.ev-low{background:#fff1d9;color:#a86400}
 .uq{display:block;font-size:10px;color:#6b737b}
 .up2{display:block;font-size:10px;color:#a86400;font-weight:bold}
 footer{font-size:10px;color:var(--slate);border-top:1px solid var(--line);padding-top:12px;margin-top:30px}
@@ -90,6 +93,9 @@ footer{font-size:10px;color:var(--slate);border-top:1px solid var(--line);paddin
 
 <div class="sum" id="sum"></div>
 <div class="kpis" id="kpis"></div>
+
+<h2>Upozornění</h2>
+<div class="card" id="alerts"></div>
 
 <h2>Vývoj dostupnosti</h2>
 <div class="card"><div id="range"><button data-r="7">7 dní</button> <button data-r="30">30 dní</button> <button data-r="0" class="on">Vše</button>
@@ -137,7 +143,7 @@ const pbadge=x=>`<span class="pb pt-${x[0]}">${plabel(x)}</span>`;
 const gen=n=>n===1?'pozice':'pozic';
 const vypr=n=>n===1?'vyprodaná pozice':n>=2&&n<=4?'vyprodané pozice':'vyprodaných pozic';
 const join=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' a '+a[a.length-1];
-Promise.all([fetch('data/polaris.json',{cache:'no-store'}).then(r=>r.json()),fetch('data/products.json',{cache:'no-store'}).then(r=>r.ok?r.json():{}).catch(()=>({}))]).then(([D,IMG])=>{
+Promise.all([fetch('data/polaris.json',{cache:'no-store'}).then(r=>r.json()),fetch('data/products.json',{cache:'no-store'}).then(r=>r.ok?r.json():{}).catch(()=>({})),fetch('data/alerts.json',{cache:'no-store'}).then(r=>r.ok?r.json():{runs:[]}).catch(()=>({runs:[]}))]).then(([D,IMG,AL])=>{
  const days=D.days, Z=D.zones, zn=Object.fromEntries(Z.map(z=>[z.key,z.name])), name=s=>D.skus[s]||s;
  const idx={};days.forEach((d,i)=>idx[d.date]=i);
  const prod=s=>{const m=IMG[s]||{};return `<span class="pr">${m.img?`<img src="${m.img}" alt="" loading="lazy">`:''}<a href="${m.url||'https://www.rohlik.cz/'+s}" target="_blank" rel="noopener">${name(s)}</a></span>`};
@@ -178,6 +184,10 @@ Promise.all([fetch('data/polaris.json',{cache:'no-store'}).then(r=>r.json()),fet
  $('heat').onclick=e=>{const l=e.target.dataset.d;if(l&&idx[l]!==undefined)go(idx[l])};
  $('fz').onchange=e=>{fz=e.target.value;draw()};$('fs').onchange=e=>{fs=e.target.value;draw()};
  $('reset').onclick=()=>{fz=fs='';$('fz').value=$('fs').value='';draw()};
+ const runs=(AL.runs||[]).slice().reverse().slice(0,8);
+ $('alerts').innerHTML=(runs.length?runs.map(r=>{const t=new Date(r.run_at);const ts=t.toLocaleDateString('cs-CZ',{day:'2-digit',month:'2-digit'})+' '+t.toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'});
+  return `<div class="al"><time>${ts}</time><div>${r.events.map(e=>e.type==='oos'?`<span class="ev ev-oos" title="Nový výpadek">● Vyprodáno: ${e.product} · ${e.zone_name}</span>`:`<span class="ev ev-low" title="Kritická zásoba">● ${e.units} ks: ${e.product} · ${e.zone_name}</span>`).join('')}</div></div>`}).join(''):'<p class="note" style="margin:0">Zatím žádná upozornění. Hlásí se jen změny oproti předchozímu měření: nový výpadek a pokles na kritickou zásobu (≤5 ks).</p>')+
+  (AL.last_run?`<p class="note" style="margin:8px 0 0">Měří se 2× denně (ráno a odpoledne); každá změna se hlásí jen jednou.</p>`:'');
  function draw(){
   const d=days[sel], p=days[sel-1], S=stats(d), P=p?stats(p):null;
   $('fz').classList.toggle('act',!!fz);$('fs').classList.toggle('act',!!fs);
