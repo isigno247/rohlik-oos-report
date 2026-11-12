@@ -2,7 +2,8 @@ name: Rohlik OOS daily report
 
 on:
   schedule:
-    - cron: "30 4 * * *"        # 04:30 UTC = 05:30 CET / 06:30 CEST (GitHub may start it a few minutes late)
+    - cron: "30 4 * * *"        # morning: 04:30 UTC = 05:30 CET / 06:30 CEST – report + dashboard + alerts
+    - cron: "30 12 * * *"       # afternoon: 12:30 UTC = 13:30 CET / 14:30 CEST – dashboard + alerts only
   workflow_dispatch:             # "Run workflow" button for manual runs
     inputs:
       client:
@@ -37,9 +38,9 @@ jobs:
       - name: Self-test against the local mock (no Rohlik calls)
         run: |
           python tests/mock_rohlik_mcp.py & MOCK_PID=$!; sleep 5
-          cp -r state /tmp/state_real; cp -r reports /tmp/reports_real
+          cp -r state /tmp/state_real; cp -r reports /tmp/reports_real; cp -r docs /tmp/docs_real
           ROHLIK_MCP_URL=http://127.0.0.1:8765/mcp python -m oos.run --client polaris
-          rm -rf state reports; cp -r /tmp/state_real state; cp -r /tmp/reports_real reports
+          rm -rf state reports docs; cp -r /tmp/state_real state; cp -r /tmp/reports_real reports; cp -r /tmp/docs_real docs
           kill $MOCK_PID || true
 
       - name: Measure and build report
@@ -53,7 +54,8 @@ jobs:
           FAILED=""
           for c in $CLIENTS; do
             echo "::group::$c"
-            python -m oos.run --client "$c" || FAILED="$FAILED $c"
+            ARGS=""; [ "${{ github.event.schedule }}" = "30 12 * * *" ] && ARGS="--no-report"
+            python -m oos.run --client "$c" $ARGS || FAILED="$FAILED $c"
             [ -f failed_report.html ] && mv failed_report.html "failed_report_$c.html"
             echo "::endgroup::"
           done
