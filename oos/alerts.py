@@ -45,7 +45,28 @@ def _dm(iso: str | None) -> str:
     return f"{d.day:02d}.{d.month:02d}."
 
 
-def render_email(cfg: dict, events: list[dict], when_str: str) -> tuple[str, str]:
+F = "font-family:Arial,Helvetica,sans-serif;"
+
+
+def _chip(text, fg, bg):
+    return (f'<span style="display:inline-block;{F}font-size:11px;font-weight:bold;color:{fg};background-color:{bg};'
+            f'padding:3px 9px;border-radius:10px;white-space:nowrap">{text}</span>')
+
+
+def _product(e, imgs):
+    m = imgs.get(str(e["sku"])) or {}
+    img = (f'<img src="{m["img"]}" width="40" height="40" alt="" style="display:block;width:40px;height:40px;'
+           f'border:1px solid #e4e7ea;border-radius:4px;background:#ffffff">') if m.get("img") else ""
+    url = m.get("url") or e["url"]
+    return (f'<table cellspacing="0" cellpadding="0" style="border-collapse:collapse"><tr>'
+            f'<td style="padding:0 10px 0 0;vertical-align:middle">{img}</td>'
+            f'<td style="vertical-align:middle;{F}font-size:12px"><a href="{url}" style="color:#1C2529;text-decoration:none;'
+            f'font-weight:bold">{escape(e["product"])}</a><br><span style="color:#6b737b;font-size:11px">SKU {e["sku"]}</span>'
+            f'</td></tr></table>')
+
+
+def render_email(cfg: dict, events: list[dict], when_str: str, imgs: dict | None = None) -> tuple[str, str]:
+    imgs = imgs or {}
     oos = [e for e in events if e["type"] == "oos"]
     low = sorted([e for e in events if e["type"] == "low"], key=lambda e: e.get("units") or 0)
     parts = []
@@ -54,35 +75,59 @@ def render_email(cfg: dict, events: list[dict], when_str: str) -> tuple[str, str
     if low:
         parts.append(f"{len(low)} critical stock")
     subject = f"{cfg['client']} · Rohlik.cz alert — {', '.join(parts)} ({when_str})"
-    th = 'style="text-align:left;background:#eef0f2;color:#515A63;padding:6px;border-bottom:2px solid #F19500"'
-    td = 'style="padding:6px;border-bottom:1px solid #e6e8ea"'
 
-    def table(title, color, head, rows):
-        h = (f'<div style="font-size:15px;font-weight:bold;color:{color};margin:18px 0 6px 0">{title}</div>'
-             '<table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;font-size:12px;color:#33393f">'
-             '<tr>' + "".join(f"<th {th}>{x}</th>" for x in head) + "</tr>")
+    def tile(n, label, col, bg):
+        return (f'<td width="50%" style="padding:0 6px 0 0"><table width="100%" cellspacing="0" cellpadding="0" '
+                f'style="border-collapse:collapse;background-color:{bg};border-left:4px solid {col}"><tr><td style="padding:12px 14px;{F}">'
+                f'<div style="font-size:26px;font-weight:bold;color:{col};line-height:1">{n}</div>'
+                f'<div style="font-size:12px;color:#33393f;margin-top:4px">{label}</div></td></tr></table></td>')
+
+    def h2(t):
+        return (f'<div style="{F}font-size:17px;font-weight:bold;color:#515A63;border-bottom:2px solid #F19500;'
+                f'padding:22px 0 5px 0;margin-bottom:8px">{t}</div>')
+
+    def table(head, rows):
+        h = ('<table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse"><tr>'
+             + "".join(f'<th align="left" style="{F}font-size:11px;color:#515A63;background-color:#eef0f2;padding:7px 8px;'
+                       f'border-bottom:2px solid #F19500">{x}</th>' for x in head) + "</tr>")
         for r in rows:
-            h += "<tr>" + "".join(f"<td {td}>{x}</td>" for x in r) + "</tr>"
+            h += "<tr>" + "".join(f'<td style="{F}font-size:12px;color:#33393f;padding:8px;border-bottom:1px solid #e6e8ea;'
+                                  f'vertical-align:middle">{x}</td>' for x in r) + "</tr>"
         return h + "</table>"
 
-    h = ('<div style="font-family:Arial,Helvetica,sans-serif;max-width:720px">'
-         '<div style="background-color:#515A63;padding:14px 18px"><div style="font-size:18px;font-weight:bold;color:#ffffff">'
-         f'{escape(cfg["client"])} · Rohlik.cz stock alert</div><div style="font-size:12px;color:#ffffff;margin-top:3px">'
-         f'Measured {when_str} · changes since the previous measurement</div></div>'
-         '<div style="height:4px;background-color:#F19500;font-size:1px;line-height:4px">&nbsp;</div>'
-         '<div style="padding:4px 18px 18px 18px">')
+    h = (f'<table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;background-color:#f4f5f6">'
+         f'<tr><td align="center" style="padding:20px 10px">'
+         f'<table width="680" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:680px;max-width:680px;background-color:#ffffff">'
+         f'<tr><td style="padding:16px 22px;background-color:#ffffff"><img src="{DASHBOARD}logo.png" width="190" alt="POS Media" '
+         f'style="display:block;width:190px;height:auto;border:0"></td></tr>'
+         f'<tr><td style="background-color:#515A63;padding:18px 22px;{F}">'
+         f'<div style="font-size:11px;font-weight:bold;letter-spacing:1.5px;color:#1C2529;background-color:#F19500;'
+         f'display:inline-block;padding:3px 8px">STOCK ALERT</div>'
+         f'<div style="font-size:22px;font-weight:bold;color:#ffffff;margin-top:8px">{escape(cfg["client"])} · Rohlik.cz</div>'
+         f'<div style="font-size:13px;color:#d9dde1;margin-top:4px">Measured {when_str} · changes since the previous measurement</div></td></tr>'
+         f'<tr><td style="height:4px;background-color:#F19500;font-size:1px;line-height:4px">&nbsp;</td></tr>'
+         f'<tr><td style="padding:18px 22px 6px 22px"><table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse"><tr>'
+         + tile(len(oos), "newly out of stock", "#d03b3b", "#fdecec")
+         + tile(len(low), "critical stock (5 units or fewer)", "#b57d00", "#fff6e6")
+         + '</tr></table></td></tr><tr><td style="padding:0 22px 8px 22px">')
     if oos:
-        h += table("Newly out of stock", "#d03b3b", ["SKU", "Product", "Warehouse", "Expected restock"],
-                   [[e["sku"], f'<a href="{e["url"]}" style="color:#33393f">{escape(e["product"])}</a>',
-                     escape(e["zone_name"]), _dm(e.get("restock_date"))] for e in oos])
+        h += h2("Newly out of stock")
+        h += table(["Product", "Warehouse", "Expected restock"],
+                   [[_product(e, imgs), escape(e["zone_name"]),
+                     _chip(_dm(e.get("restock_date")), "#a86400", "#fff1d9") if e.get("restock_date")
+                     else _chip("not given", "#6b737b", "#eef0f2")] for e in oos])
     if low:
-        h += table("Critical stock (5 units or fewer)", "#b57d00", ["SKU", "Product", "Warehouse", "Units left"],
-                   [[e["sku"], f'<a href="{e["url"]}" style="color:#33393f">{escape(e["product"])}</a>',
-                     escape(e["zone_name"]), f'<b style="color:#b57d00">{e.get("units")}</b>'] for e in low])
-    h += (f'<p style="font-size:12px;color:#33393f;margin:16px 0 0 0">Full overview: '
-          f'<a href="{DASHBOARD}" style="color:#F19500">availability dashboard</a></p>'
-          '<p style="font-size:10px;color:#6b737b;margin:12px 0 0 0">POS Media Czech Republic · automated '
-          'Rohlik.cz availability alert · each change is reported once</p></div></div>')
+        h += h2("Critical stock")
+        h += table(["Product", "Warehouse", "Units left"],
+                   [[_product(e, imgs), escape(e["zone_name"]),
+                     _chip(f'{e.get("units")} {"unit" if e.get("units") == 1 else "units"}', "#ffffff",
+                           "#d03b3b" if (e.get("units") or 0) <= 2 else "#F19500")] for e in low])
+    h += (f'</td></tr><tr><td align="center" style="padding:20px 22px 24px 22px">'
+          f'<a href="{DASHBOARD}" style="display:inline-block;{F}font-size:13px;font-weight:bold;color:#ffffff;'
+          f'background-color:#F19500;text-decoration:none;padding:11px 22px;border-radius:3px">Open availability dashboard</a></td></tr>'
+          f'<tr><td style="padding:12px 22px 16px 22px;border-top:1px solid #e4e7ea;{F}font-size:10px;color:#6b737b">'
+          f'POS Media Czech Republic · automated Rohlik.cz availability alert · each change is reported once · '
+          f'stock is measured twice a day</td></tr></table></td></tr></table>')
     return subject, h
 
 
@@ -98,5 +143,7 @@ def publish(root: Path, cfg: dict, events: list[dict], now_iso: str, when_str: s
     f.write_text(json.dumps(hist, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     latest = {"run_at": now_iso, "events_count": len(events), "subject": "", "html": ""}
     if events:
-        latest["subject"], latest["html"] = render_email(cfg, events, when_str)
+        pf = d / "products.json"
+        imgs = json.loads(pf.read_text(encoding="utf-8")) if pf.exists() else {}
+        latest["subject"], latest["html"] = render_email(cfg, events, when_str, imgs)
     (d / "alerts_latest.json").write_text(json.dumps(latest, ensure_ascii=False, indent=1), encoding="utf-8")
