@@ -1,6 +1,6 @@
 {
- "date": "2026-11-13",
- "measured_at": "14:38 CET",
+ "date": "2026-11-14",
+ "measured_at": "06:22 CET",
  "footprint": {
   "1423451": {
    "chrastany": true,
@@ -230,14 +230,14 @@
   "1423454": {
    "chrastany": {
     "state": "in_stock",
-    "units": 6,
+    "units": 5,
     "price": 1299.9,
     "sale_price": null,
     "sale_id": null,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
-    "low": false,
+    "low": true,
     "promos": []
    },
    "praha_liboc": {
@@ -354,7 +354,7 @@
   "1423457": {
    "chrastany": {
     "state": "in_stock",
-    "units": 13,
+    "units": 12,
     "price": 709.9,
     "sale_price": null,
     "sale_id": null,
@@ -428,7 +428,7 @@
    },
    "praha_liboc": {
     "state": "in_stock",
-    "units": 16,
+    "units": 15,
     "price": 709.9,
     "sale_price": null,
     "sale_id": null,
@@ -452,7 +452,7 @@
    },
    "brno": {
     "state": "in_stock",
-    "units": 13,
+    "units": 12,
     "price": 749.9,
     "sale_price": null,
     "sale_id": null,
@@ -464,7 +464,7 @@
    },
    "ostrava": {
     "state": "in_stock",
-    "units": 9,
+    "units": 8,
     "price": 749.9,
     "sale_price": null,
     "sale_id": null,
@@ -556,12 +556,12 @@
     "price": 1299.9,
     "sale_price": null,
     "sale_id": null,
-    "restock": "Očekáváme ve st.",
-    "restock_date": "2026-11-18",
+    "restock": "Dočasně nedostupné.",
+    "restock_date": null,
     "zero_since": "2026-11-11",
     "low": false,
     "promos": [],
-    "days_at_zero": 8
+    "days_at_zero": 9
    },
    "horni_pocernice": {
     "state": "in_stock",
@@ -603,7 +603,7 @@
   "1454631": {
    "chrastany": {
     "state": "in_stock",
-    "units": 48,
+    "units": 50,
     "price": 57.9,
     "sale_price": null,
     "sale_id": null,
@@ -627,7 +627,7 @@
    },
    "horni_pocernice": {
     "state": "in_stock",
-    "units": 20,
+    "units": 19,
     "price": 57.9,
     "sale_price": null,
     "sale_id": null,
@@ -651,7 +651,7 @@
    },
    "ostrava": {
     "state": "in_stock",
-    "units": 19,
+    "units": 13,
     "price": 57.9,
     "sale_price": null,
     "sale_id": null,
@@ -674,7 +674,7 @@
     "zero_since": "2026-11-11",
     "low": false,
     "promos": [],
-    "days_at_zero": 5
+    "days_at_zero": 6
    },
    "praha_liboc": {
     "state": "out_of_stock",
@@ -687,7 +687,7 @@
     "zero_since": "2026-11-11",
     "low": false,
     "promos": [],
-    "days_at_zero": 6
+    "days_at_zero": 7
    },
    "horni_pocernice": {
     "state": "out_of_stock",
@@ -695,12 +695,12 @@
     "price": 57.9,
     "sale_price": null,
     "sale_id": null,
-    "restock": "Očekáváme ve st.",
-    "restock_date": "2026-11-18",
+    "restock": "Dočasně nedostupné.",
+    "restock_date": null,
     "zero_since": "2026-11-11",
     "low": false,
     "promos": [],
-    "days_at_zero": 6
+    "days_at_zero": 7
    },
    "brno": {
     "state": "not_listed",
@@ -751,11 +751,11 @@
     "zero_since": "2026-11-11",
     "low": false,
     "promos": [],
-    "days_at_zero": 5
+    "days_at_zero": 6
    },
    "horni_pocernice": {
     "state": "in_stock",
-    "units": 21,
+    "units": 17,
     "price": 57.9,
     "sale_price": null,
     "sale_id": null,
@@ -776,7 +776,7 @@
     "zero_since": "2026-11-11",
     "low": false,
     "promos": [],
-    "days_at_zero": 20
+    "days_at_zero": 21
    },
    "ostrava": {
     "state": "out_of_stock",
@@ -789,20 +789,20 @@
     "zero_since": "2026-11-11",
     "low": false,
     "promos": [],
-    "days_at_zero": 9
+    "days_at_zero": 10
    }
   },
   "1474799": {
    "chrastany": {
     "state": "in_stock",
-    "units": 3,
+    "units": 8,
     "price": 164.9,
     "sale_price": null,
     "sale_id": null,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
-    "low": true,
+    "low": false,
     "promos": []
    },
    "praha_liboc": {
@@ -828,7 +828,7 @@
     "zero_since": "2026-11-13",
     "low": false,
     "promos": [],
-    "days_at_zero": 1
+    "days_at_zero": 2
    },
    "brno": {
     "state": "not_listed",
