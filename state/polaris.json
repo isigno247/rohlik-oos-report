@@ -1,6 +1,6 @@
 {
  "date": "2026-11-14",
- "measured_at": "06:22 CET",
+ "measured_at": "14:22 CET",
  "footprint": {
   "1423451": {
    "chrastany": true,
@@ -142,7 +142,7 @@
    },
    "brno": {
     "state": "in_stock",
-    "units": 16,
+    "units": 15,
     "price": 429.9,
     "sale_price": null,
     "sale_id": null,
@@ -168,7 +168,7 @@
   "1423452": {
    "chrastany": {
     "state": "in_stock",
-    "units": 18,
+    "units": 17,
     "price": 1299.9,
     "sale_price": null,
     "sale_id": null,
@@ -230,7 +230,7 @@
   "1423454": {
    "chrastany": {
     "state": "in_stock",
-    "units": 5,
+    "units": 4,
     "price": 1299.9,
     "sale_price": null,
     "sale_id": null,
@@ -651,7 +651,7 @@
    },
    "ostrava": {
     "state": "in_stock",
-    "units": 13,
+    "units": 6,
     "price": 57.9,
     "sale_price": null,
     "sale_id": null,
@@ -755,7 +755,7 @@
    },
    "horni_pocernice": {
     "state": "in_stock",
-    "units": 17,
+    "units": 15,
     "price": 57.9,
     "sale_price": null,
     "sale_id": null,
@@ -956,7 +956,7 @@
    },
    "brno": {
     "state": "in_stock",
-    "units": 11,
+    "units": 10,
     "price": 154.9,
     "sale_price": null,
     "sale_id": null,
