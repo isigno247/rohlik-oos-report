@@ -1,6 +1,6 @@
 {
  "date": "2026-11-16",
- "measured_at": "16:33 CET",
+ "measured_at": "18:03 CET",
  "footprint": {
   "1423451": {
    "chrastany": true,
@@ -566,7 +566,7 @@
    },
    "horni_pocernice": {
     "state": "in_stock",
-    "units": 2,
+    "units": 1,
     "price": 1299.9,
     "sale_price": null,
     "sale_id": null,
@@ -756,7 +756,7 @@
    },
    "horni_pocernice": {
     "state": "in_stock",
-    "units": 13,
+    "units": 12,
     "price": 57.9,
     "sale_price": null,
     "sale_id": null,
