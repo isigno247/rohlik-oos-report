@@ -41,7 +41,11 @@ def detect(cfg: dict, cls: dict, prev: dict | None) -> list[dict]:
                         "price": c.get("price"), "url": f"https://www.rohlik.cz/{sid}"}
                 pr = next((x for x in c.get("promos") or [] if x.get("type") != "premium"), None)
                 base["promo"] = {"type": pr["type"], "pct": pr.get("pct"), "trigger": pr.get("trigger")} if pr else None
-                if c["state"] == OOS and p.get("state") == IN:
+                if c.get("delisted") and not p.get("delisted"):
+                    ev.append({"type": "delisted", **base, "price": p.get("price"), "evidence": c["delisted"]})
+                elif c.get("listed_now") and not p.get("listed_now"):
+                    ev.append({"type": "listed", **base, "units": c.get("listed_units")})
+                elif c["state"] == OOS and p.get("state") == IN:
                     ev.append({"type": "oos", **base, "restock_date": c.get("restock_date")})
                 elif c["state"] == IN and c.get("low") and not (p.get("state") == IN and p.get("low")):
                     ev.append({"type": "low", **base, "units": c.get("units")})
@@ -134,7 +138,13 @@ def render_email(cfg: dict, events: list[dict], when_str: str, imgs: dict | None
     hot = lambda e: 0 if (e.get("promo") or e.get("campaigns")) else 1     # promo / campaign first
     oos = sorted([e for e in events if e["type"] == "oos"], key=hot)
     low = sorted([e for e in events if e["type"] == "low"], key=lambda e: (hot(e), e.get("units") or 0))
+    gone = [e for e in events if e["type"] == "delisted"]
+    new = [e for e in events if e["type"] == "listed"]
     parts = []
+    if new:
+        parts.append(f"{len(new)}× nově zalistováno")
+    if gone:
+        parts.append(f"{len(gone)}× staženo z nabídky")
     if oos:
         parts.append(f"{len(oos)}× vyprodáno")
     if low:
@@ -208,6 +218,14 @@ def render_email(cfg: dict, events: list[dict], when_str: str, imgs: dict | None
          + _context(ctx) + '</td></tr><tr><td style="padding:0 22px 8px 22px">')
     restock = lambda e: (_chip(_dm(e.get("restock_date")), "#a86400", "#fff1d9") if e.get("restock_date")
                          else _chip("neuvedeno", "#6b737b", "#eef0f2"))
+    if new:
+        h += h2("Nově zalistováno")
+        h += gtable(["Produkt", "Sklad", "Skladem"], new,
+                    lambda e: [_chip(f'{e.get("units")} ks', "#ffffff", "#0ca30c")])
+    if gone:
+        h += h2("Staženo z nabídky")
+        h += gtable(["Produkt", "Sklad", "Stav na Rohlik.cz"], gone,
+                    lambda e: [_chip("již není v nabídce", "#b02a2a", "#fdecec")])
     if oos:
         h += h2("Nově vyprodané")
         h += gtable(["Produkt", "Sklad", "Naskladnění (odhad Rohlíku)"], oos, lambda e: [restock(e)])

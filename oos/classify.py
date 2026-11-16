@@ -72,14 +72,28 @@ def classify(cfg: dict, meas: dict, prev_state: dict | None, today: date) -> dic
                 carried = fp[sid][k]
                 p = {"state": None, "units": None, "price": None, "sale_price": None,
                      "sale_id": None, "restock": None, "restock_date": None, "zero_since": None, "low": False, "promos": []}
+                before = prev_pos.get(sid, {}).get(k, {})
                 if zr["status"] != "OK":
                     p["state"] = FAIL
                 elif carried is None:
                     p["state"] = UNV
                 elif carried is False:
-                    p["state"] = NL          # no API call was made; no price ever shown
+                    p["state"] = NL          # never priced; stock only probed for new-listing evidence
+                    pr = (zr.get("probes") or {}).get(int(sid)) or {}
+                    if pr.get("in_stock") and pr.get("units", 0) > 0:
+                        # units in a warehouse the baseline says never carries it = it is carried now
+                        p.update(listed_now=True, listed_units=pr["units"],
+                                 listed_since=before.get("listed_since") or today.isoformat())
                 else:
                     m = zr["products"][int(sid)]
+                    if m["units"] == 0 and m.get("delisted"):
+                        # Rohlik itself says the product is no longer offered here: not listed,
+                        # out of the availability denominator, no price. Footprint stays as is
+                        # until the baseline is updated deliberately.
+                        p.update(state=NL, delisted=m["delisted"],
+                                 delisted_since=before.get("delisted_since") or today.isoformat())
+                        positions[sid][k] = p
+                        continue
                     p.update(units=m["units"], price=m["price"], sale_price=m["sale_price"],
                              sale_id=m["sale_id"], promos=m.get("promos", []))
                     if m["units"] > 0:
@@ -89,7 +103,6 @@ def classify(cfg: dict, meas: dict, prev_state: dict | None, today: date) -> dic
                         p["state"] = OOS
                         p["restock"] = restock_text(m["reason"], m["restock_date"], today)
                         p["restock_date"] = restock_iso(m["reason"], m["restock_date"], today)
-                        before = prev_pos.get(sid, {}).get(k, {})
                         p["zero_since"] = (before.get("zero_since") if before.get("state") == OOS
                                            else None) or today.isoformat()
                 positions[sid][k] = p
@@ -115,10 +128,28 @@ def build_notes(cfg, cls, prev_state, today, failed_zone_names):
     names = {str(s["id"]): s["name"] for b in cfg["brands"] for s in b["skus"]}
     zname = {z["key"]: z["name"] for z in cfg["zones"]}
     thr = int(cfg["stale_oos_threshold_days"])
-    notes = {k: [] for k in ["new", "stale", "changes", "related", "unverified", "anomalies"]}
+    notes = {k: [] for k in ["new", "stale", "changes", "related", "unverified", "anomalies", "delisted"]}
 
+    prev_pos = (prev_state or {}).get("positions", {})
     for sid, zs in pos.items():
         for k, p in zs.items():
+            was = prev_pos.get(sid, {}).get(k, {})
+            if p.get("delisted"):
+                if not was.get("delisted"):
+                    notes["changes"].append(f"{sid} {names[sid]} — {zname[k]}: no longer offered by Rohlik "
+                                            f"({p['delisted']}). Counted as not listed from today; "
+                                            f"baseline update: add {k} to not_listed_in.")
+                else:
+                    notes["delisted"].append((sid, k, p["delisted_since"]))
+            elif was.get("delisted") and p["state"] in (IN, OOS):
+                notes["changes"].append(f"{sid} {names[sid]} — {zname[k]}: back in Rohlik's assortment "
+                                        f"after delisting on {fmt_date(was['delisted_since'])}.")
+            if p.get("listed_now"):
+                first = not was.get("listed_now")
+                notes["new"].append(f"{sid} {names[sid]} — {zname[k]}: on sale with {p['listed_units']} units "
+                                    f"although the baseline says not listed"
+                                    f"{'' if first else ' (since ' + fmt_date(p['listed_since']) + ')'}. "
+                                    f"Baseline update: remove {k} from not_listed_in.")
             if p["state"] == OOS and p["zero_since"]:
                 days = (today - date.fromisoformat(p["zero_since"])).days
                 if days > thr:

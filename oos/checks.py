@@ -31,7 +31,9 @@ def run_checks(html: str, cfg: dict, cls: dict, meas: dict) -> dict:
     ok = True
     for sid, zs in pos.items():
         for k, p in zs.items():
-            if p["state"] == NL and (fp[sid][k] is not False or p["price"] is not None):
+            # not listed = baseline says not carried, or Rohlik explicitly says delisted; never priced
+            if p["state"] == NL and ((fp[sid][k] is not False and not p.get("delisted"))
+                                     or p["price"] is not None):
                 ok = False
             if p["state"] in (IN, OOS) and fp[sid][k] is not True:
                 ok = False

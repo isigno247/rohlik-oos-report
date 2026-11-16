@@ -93,6 +93,22 @@ class Session:
             out.update({int(r["productId"]): r for r in rows})
         return out
 
+    def details(self, ids: list[int]) -> dict[int, dict]:
+        """Product records (name, brand, flags). Used only as listing evidence, never for stock;
+        a failure here never fails the zone."""
+        out = {}
+        for i in range(0, len(ids), 20):
+            try:
+                rows = self._req("GET", "/api/v1/products", {"products": ids[i:i + 20]}, retries=1) or []
+            except ToolError as e:
+                log.info("product details unavailable: %s", e)
+                return out
+            if isinstance(rows, dict):
+                rows = rows.get("data") or rows.get("products") or []
+            out.update({int(r.get("id") or r.get("productId")): r for r in rows
+                        if isinstance(r, dict) and (r.get("id") or r.get("productId"))})
+        return out
+
     def prices(self, ids: list[int]) -> dict[int, dict]:
         out = {}
         for i in range(0, len(ids), 20):
@@ -108,6 +124,24 @@ def _amount(x):
         return float(x) if x is not None else None
     except (TypeError, ValueError):
         return None
+
+
+def delisting_evidence(rules: dict, stock_row: dict | None, detail_row: dict | None) -> str | None:
+    """Explicit 'no longer offered' signal from Rohlik, or None. Text patterns are matched anywhere
+    in the raw stock/product record; flags are exact field values (config: listing.delisted_flags).
+    Never inferred from days at zero - that stays a passive 'possible delisting' note."""
+    pats = [x.lower() for x in rules.get("delisted_patterns") or []]
+    for src, row in (("stock", stock_row), ("product", detail_row)):
+        if not row:
+            continue
+        raw = json.dumps(row, ensure_ascii=False).lower()
+        hit = next((x for x in pats if x in raw), None)
+        if hit:
+            return f"Rohlik {src} record says '{hit}'"
+        for f in rules.get("delisted_flags") or []:
+            if f.get("source", "stock") == src and f["field"] in row and row[f["field"]] == f["value"]:
+                return f"Rohlik {src} record has {f['field']}={json.dumps(f['value'])}"
+    return None
 
 
 def parse(stock_row: dict | None, price_row: dict | None) -> dict:
@@ -139,7 +173,9 @@ def parse(stock_row: dict | None, price_row: dict | None) -> dict:
 
 def measure(cfg: dict, base: str) -> dict:
     zones = cfg["zones"]
+    rules = cfg.get("listing") or {}
     carried = {z["key"]: [] for z in zones}
+    every = [int(s["id"]) for b in cfg["brands"] for s in b["skus"]]
     for b in cfg["brands"]:
         for s in b["skus"]:
             excluded = set(s.get("not_listed_in", [])) | set(s.get("unverified_in", []))
@@ -151,7 +187,8 @@ def measure(cfg: dict, base: str) -> dict:
     seen_wh = {}
     for z in zones:
         key = z["key"]
-        zr = {"status": "FAILED", "verification": None, "canary": None, "products": {}}
+        zr = {"status": "FAILED", "verification": None, "canary": None, "products": {},
+              "probes": {}, "raw": {}}
         try:
             sess = Session(base)
             sess.warm()
@@ -159,7 +196,9 @@ def measure(cfg: dict, base: str) -> dict:
             wh = addr["warehouse_id"]
             exp = z.get("expected_warehouse_id")
             ids = carried[key]
-            st, pr = sess.stock(ids), sess.prices(ids)
+            # stock for EVERY tracked SKU: a footprint 'not listed' position that suddenly has units
+            # is hard evidence of a new listing. Prices only where the footprint says carried.
+            st, pr = sess.stock(every), sess.prices(ids)
             got = {int(r.get("warehouseId", -1)) for r in st.values()}
             problems = []
             if exp and wh != int(exp):
@@ -175,9 +214,24 @@ def measure(cfg: dict, base: str) -> dict:
                 zr["verification"] = {"method": "web_session", "problems": problems, "warehouse_id": wh}
             else:
                 seen_wh[wh] = key
+                products = {pid: parse(st.get(pid), pr.get(pid)) for pid in ids}
+                zero = [pid for pid in ids if products[pid]["units"] == 0]
+                nl = [pid for pid in every if pid not in ids]
+                det = sess.details(zero + nl) if (zero or nl) else {}
+                for pid in zero:
+                    products[pid]["delisted"] = delisting_evidence(rules, st.get(pid), det.get(pid))
+                probes = {}
+                for pid in nl:
+                    r = st.get(pid) or {}
+                    probes[pid] = {"returned": pid in st, "in_stock": bool(r.get("inStock")),
+                                   "units": int(r.get("maxBasketAmount") or 0) if r.get("inStock") else 0,
+                                   "reason": r.get("unavailabilityReason")}
+                # raw evidence for every zero/not-listed position, so a new Rohlik signal can be read
+                # straight from state/raw instead of guessed
+                raw = {str(pid): {"stock": st.get(pid), "product": det.get(pid)} for pid in zero + nl}
                 zr.update(status="OK",
                           verification={"method": "web_session", "warehouse_id": wh, "zone_id": addr["zone_id"]},
-                          products={pid: parse(st.get(pid), pr.get(pid)) for pid in ids})
+                          products=products, probes=probes, raw=raw)
         except ToolError as e:
             log.error("zone %s failed: %s", key, e)
             zr["verification"] = {"method": "web_session", "problems": [str(e)]}
@@ -187,9 +241,13 @@ def measure(cfg: dict, base: str) -> dict:
     return result
 
 
-def run_measure(cfg: dict) -> dict:
+def base_url() -> str:
     base = os.environ.get("ROHLIK_BASE_URL")
     if not base:  # the CI self-test still exports ROHLIK_MCP_URL for the local mock
         mcp = os.environ.get("ROHLIK_MCP_URL", "")
         base = mcp[:-4] if mcp.endswith("/mcp") else "https://www.rohlik.cz"
-    return measure(cfg, base)
+    return base
+
+
+def run_measure(cfg: dict) -> dict:
+    return measure(cfg, base_url())

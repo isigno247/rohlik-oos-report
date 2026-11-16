@@ -13,8 +13,9 @@ import yaml
 
 from .alerts import detect, long_term, publish
 from .checks import run_checks
+from . import discover as disc
 from .classify import OOS, build_notes, classify, counts, new_state
-from .measure import run_measure
+from .measure import base_url, run_measure
 from .report2 import render
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -26,6 +27,8 @@ def main() -> int:
     ap.add_argument("--client", required=True)
     ap.add_argument("--no-report", action="store_true",
                     help="afternoon run: update state, dashboard data and alerts, keep the morning report")
+    ap.add_argument("--discover", action="store_true",
+                    help="run the catalogue check for new SKUs now (otherwise Monday mornings)")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     log = logging.getLogger("oos")
@@ -40,6 +43,27 @@ def main() -> int:
     cls = classify(cfg, meas, prev, today)
     failed = [z["name"] for z in cfg["zones"] if meas["zones"].get(z["key"], {}).get("status") != "OK"]
     notes = build_notes(cfg, cls, prev, today, failed)
+
+    # weekly catalogue check for brand-new SKUs; the latest result is shown every day until handled
+    slug = cfg["report_slug"]
+    dcfg = cfg.get("discovery") or {}
+    if args.discover or (not args.no_report and dcfg.get("enabled", True)
+                         and now.weekday() == int(dcfg.get("weekday", 0))):
+        disc.save(ROOT, slug, disc.discover(cfg, base_url(), today))
+    dres = disc.load(ROOT, slug)
+    notes["catalogue"], notes["catalogue_status"] = disc.note_lines(cfg, dres)
+    for o in (dres or {}).get("other_brand", []):
+        notes["related"].append(f"{o['id']} {o['name']}: brand field '{o['brand']}', URL matches "
+                                f"{cfg['brands'][0]['name']}. Needs decision.")
+
+    # raw Rohlik records for every zero / not-listed position: the evidence behind any listing call
+    raw_dir = ROOT / "state" / "raw" / args.client
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    (raw_dir / f"{today.isoformat()}_{'pm' if args.no_report else 'am'}.json").write_text(
+        json.dumps({k: v.get("raw", {}) for k, v in meas["zones"].items()}, ensure_ascii=False, indent=1),
+        encoding="utf-8")
+    for old in sorted(raw_dir.glob("*.json"))[:-28]:        # keep two weeks
+        old.unlink()
     meta = {"date_str": now.strftime("%d.%m.%Y"), "time_str": now.strftime("%H:%M ") + now.tzname(),
             "zone_status": {z["key"]: meas["zones"].get(z["key"], {}).get("status", "FAILED") for z in cfg["zones"]}}
     hist_file = ROOT / "docs" / "data" / f"{cfg['report_slug']}.json"

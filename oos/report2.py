@@ -170,6 +170,8 @@ def render(cfg, cls, notes, meta, logo_path: Path, history: list, today: date) -
         watch.append("No low-stock positions.")
     for sid, z, p in stale:
         watch.append(f"{escape(short[sid])} in {z['name']} at zero for {p['days_at_zero']} days, possible delisting.")
+    for sid, k, dsince in notes.get("delisted", []):
+        watch.append(f"{escape(short[sid])} in {zname[k]} no longer offered by Rohlik since {dm(date.fromisoformat(dsince))}")
     if promos:
         kinds = {}
         for _, _, x in promos:
@@ -180,11 +182,11 @@ def render(cfg, cls, notes, meta, logo_path: Path, history: list, today: date) -
                      + (f", {oos_promo} of them out of stock." if oos_promo else "."))
     else:
         watch.append("No promotions.")
-    watch.append("No listing changes." if not notes["changes"] else "Listing changes, see notes.")
+    watch.append("No listing changes." if not (notes["changes"] or notes["new"]) else "Listing changes, see notes.")
     h += f'{P}<b style="color:#515A63">Watch:</b> {" ".join(watch)}</p>'
     h += (f'{P}<b style="color:#515A63">Trend:</b> {avg:.1f}% average since {dmx(since)}, lowest {low_v:.1f}% '
           f'({dmx(date.fromisoformat(low_d))}).</p>')
-    action = "None." if not notes["changes"] and not notes["anomalies"] else "Review the notes below."
+    action = ("None." if not (notes["changes"] or notes["anomalies"] or notes["new"]) else "Review the notes below.")
     h += f'{P}<b style="color:#515A63">Action needed today:</b> {action}</p>'
 
     h += h2("How to read this report")
@@ -274,9 +276,15 @@ def render(cfg, cls, notes, meta, logo_path: Path, history: list, today: date) -
     stale_txt = "; ".join(f"{sid} {escape(short[sid])} in {z['name']}: {p['days_at_zero']} days at zero "
                           f"(limit {stale_thr}), restock {restock_label(p.get('restock_date'), today)}"
                           for sid, z, p in stale)
+    delisted_txt = "; ".join(f"{sid} {escape(short[sid])} in {zname[k]}: no longer offered by Rohlik since "
+                             f"{dm(date.fromisoformat(dsince))}, counted as not listed; baseline not updated yet"
+                             for sid, k, dsince in notes.get("delisted", []))
+    stale_body = "; ".join(x for x in [(stale_txt + "; baseline unchanged") if stale else "", delisted_txt] if x)
+    new_lines = notes["new"] + notes.get("catalogue", [])
+    new_body = ("<br>".join(map(escape, new_lines)) + "<br>" if new_lines else "") + escape(notes.get("catalogue_status", ""))
     h += h2("Notes for this run")
-    for title, body in [("New listings discovered", "None."),
-                        ("Possible delisting, baseline may be stale", (stale_txt + "; baseline unchanged.") if stale else "None."),
+    for title, body in [("New listings discovered", new_body.strip() or "None."),
+                        ("Possible delisting, baseline may be stale", (stale_body + ".") if stale_body else "None."),
                         ("Listing changes since last run", "<br>".join(map(escape, notes["changes"])) or "None."),
                         ("Possible related products (needs decision)", "<br>".join(map(escape, notes["related"])) or "None."),
                         ("Suspected data anomalies", "<br>".join(map(escape, notes["anomalies"])) or "None.")]:
@@ -295,7 +303,7 @@ def render(cfg, cls, notes, meta, logo_path: Path, history: list, today: date) -
         for z in zones:
             p = pos[sid][z["key"]]
             if p["state"] == NL:
-                row += '<td><i style="color:#9aa0a6">not listed</i></td>'
+                row += f'<td><i style="color:#9aa0a6">{"delisted" if p.get("delisted") else "not listed"}</i></td>'
                 continue
             sp = shopper_promos(p)
             price = (kc(sp[0]["price"]) + f' <s style="color:#9aa0a6">{kc(sp[0]["orig"] or p["price"])}</s>'
@@ -325,7 +333,9 @@ def render(cfg, cls, notes, meta, logo_path: Path, history: list, today: date) -
     h += TBL + head([("SKU", "left"), ("Product", "left"), ("Not listed in", "left")])
     for s in skus:
         sid = str(s["id"])
-        zl = [z["name"] for z in zones if pos[sid][z["key"]]["state"] == NL]
+        zl = [z["name"] + (f" (delisted {dm(date.fromisoformat(pos[sid][z['key']]['delisted_since']))})"
+                           if pos[sid][z["key"]].get("delisted") else "")
+              for z in zones if pos[sid][z["key"]]["state"] == NL]
         if zl:
             h += f"{TR}<td>{sid}</td><td>{escape(short[sid])}</td><td>{', '.join(zl)}</td></tr>"
     h += "</tbody></table>"
