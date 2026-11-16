@@ -13,6 +13,19 @@ restore_address_id: 11759356 # unused since the anonymous web session        # V
 stale_oos_threshold_days: 14
 low_stock_threshold: 5              # fixed by spec, do not change
 
+listing:                            # explicit "no longer offered" signals from Rohlik (never days at zero)
+  delisted_patterns: ["není v nabídce"]   # matched anywhere in the raw stock/product record
+  delisted_flags: []                  # e.g. {source: product, field: archived, value: true} once state/raw confirms it
+
+discovery:                          # weekly catalogue check for brand-new SKUs (Monday morning run)
+  enabled: true
+  weekday: 0                        # 0 = Monday
+  brand: Polaris
+  slug_terms: [polaris]             # matched against the product URL slug in Rohlik's sitemap
+  sitemap_index: /sitemap.xml
+  sitemap_filter: product
+  ignore: []                        # SKU IDs reviewed and deliberately not tracked
+
 footprint:
   established: "2026-09-21"
   source: "a user-supplied per-zone carried/not-carried map for the 14 tracked SKUs, cross-checked against live measurement at the time"
