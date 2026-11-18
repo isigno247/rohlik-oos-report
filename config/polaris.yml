@@ -37,6 +37,9 @@ zones:                              # order = column order in the report
   - {key: brno,            name: "Brno",            address_id: 5530325, address_query: "Čápkova 13/5 Brno", expected_warehouse_id: 8793}
   - {key: ostrava,         name: "Ostrava",         address_id: 10947259, address_query: "Nemocniční 3328/11 Ostrava", expected_warehouse_id: 8802}
 
+watch_addresses:                    # not measured; alert once when Rohlik assigns a new warehouse
+  - {name: "Opatovice nad Labem", address_query: "Opatovice nad Labem 478", expect_warehouse_id: 8799}
+
 brands:
   - name: Polaris
     related_name_matches: []        # look-alikes under another brand field, needing a decision
