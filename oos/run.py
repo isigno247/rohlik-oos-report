@@ -49,9 +49,21 @@ def main() -> int:
     dcfg = cfg.get("discovery") or {}
     if args.discover or (not args.no_report and dcfg.get("enabled", True)
                          and now.weekday() == int(dcfg.get("weekday", 0))):
-        disc.save(ROOT, slug, disc.discover(cfg, base_url(), today))
+        fresh = disc.discover(cfg, base_url(), today)
+        fresh["alerted"] = (disc.load(ROOT, slug) or {}).get("alerted", [])   # alert each SKU only once
+        disc.save(ROOT, slug, fresh)
     dres = disc.load(ROOT, slug)
     notes["catalogue"], notes["catalogue_status"] = disc.note_lines(cfg, dres)
+    # brand-new SKUs from the catalogue check: alert each one once, then keep it in the report notes
+    cat_hits = []
+    if dres:
+        known = {int(s["id"]) for b in cfg["brands"] for s in b["skus"]}
+        ignore = {int(x) for x in dcfg.get("ignore") or []}
+        alerted = set(dres.get("alerted") or [])
+        cat_hits = [c for c in dres.get("candidates", []) if c["id"] not in known | ignore | alerted]
+        if cat_hits:
+            dres["alerted"] = sorted(alerted | {c["id"] for c in cat_hits})
+            disc.save(ROOT, slug, dres)
     for o in (dres or {}).get("other_brand", []):
         notes["related"].append(f"{o['id']} {o['name']}: brand field '{o['brand']}', URL matches "
                                 f"{cfg['brands'][0]['name']}. Needs decision.")
@@ -111,7 +123,7 @@ def main() -> int:
            "prev_avail": counts(cfg, prev["positions"])["avail"] if prev and prev.get("positions") else None,
            "long": long_term(cfg, cls, events), "long_min": int(cfg.get("long_oos_threshold_days", 3)),
            "weekly": now.weekday() == 0 and not args.no_report,       # Monday morning: weekly digest
-           "watch": watch_hits}
+           "watch": watch_hits, "catalogue": cat_hits}
     publish(ROOT, cfg, events, now.isoformat(timespec="minutes"), now.strftime("%d.%m.%Y %H:%M"), ctx)
     log.info("Alerts: %d new event(s)", len(events))
     st = new_state(cfg, cls, meas, today, meta["time_str"], checks)
