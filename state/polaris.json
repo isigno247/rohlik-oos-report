@@ -1,6 +1,6 @@
 {
- "date": "2026-11-17",
- "measured_at": "14:41 CET",
+ "date": "2026-11-18",
+ "measured_at": "06:31 CET",
  "footprint": {
   "1423451": {
    "chrastany": true,
@@ -180,7 +180,7 @@
    },
    "praha_liboc": {
     "state": "in_stock",
-    "units": 9,
+    "units": 8,
     "price": 1299.9,
     "sale_price": null,
     "sale_id": null,
@@ -230,7 +230,7 @@
   "1423454": {
    "chrastany": {
     "state": "in_stock",
-    "units": 4,
+    "units": 3,
     "price": 1299.9,
     "sale_price": null,
     "sale_id": null,
@@ -246,12 +246,12 @@
     "price": 1299.9,
     "sale_price": null,
     "sale_id": null,
-    "restock": "Očekáváme ve st.",
+    "restock": "Očekáváme dnes (18. 11. 2026)",
     "restock_date": "2026-11-18",
     "zero_since": "2026-11-15",
     "low": false,
     "promos": [],
-    "days_at_zero": 3
+    "days_at_zero": 4
    },
    "horni_pocernice": {
     "state": "in_stock",
@@ -317,14 +317,14 @@
    },
    "horni_pocernice": {
     "state": "in_stock",
-    "units": 6,
+    "units": 5,
     "price": 1299.9,
     "sale_price": null,
     "sale_id": null,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
-    "low": false,
+    "low": true,
     "promos": []
    },
    "brno": {
@@ -367,7 +367,7 @@
    },
    "praha_liboc": {
     "state": "in_stock",
-    "units": 9,
+    "units": 7,
     "price": 709.9,
     "sale_price": null,
     "sale_id": null,
@@ -540,16 +540,17 @@
   },
   "1467999": {
    "chrastany": {
-    "state": "in_stock",
-    "units": 1,
+    "state": "out_of_stock",
+    "units": 0,
     "price": 1299.9,
     "sale_price": null,
     "sale_id": null,
-    "restock": null,
-    "restock_date": null,
-    "zero_since": null,
-    "low": true,
-    "promos": []
+    "restock": "Očekáváme dnes (18. 11. 2026)",
+    "restock_date": "2026-11-18",
+    "zero_since": "2026-11-18",
+    "low": false,
+    "promos": [],
+    "days_at_zero": 1
    },
    "praha_liboc": {
     "state": "out_of_stock",
@@ -562,7 +563,7 @@
     "zero_since": "2026-11-11",
     "low": false,
     "promos": [],
-    "days_at_zero": 12
+    "days_at_zero": 13
    },
    "horni_pocernice": {
     "state": "in_stock",
@@ -652,7 +653,7 @@
    },
    "ostrava": {
     "state": "in_stock",
-    "units": 45,
+    "units": 41,
     "price": 57.9,
     "sale_price": null,
     "sale_id": null,
@@ -670,12 +671,12 @@
     "price": 57.9,
     "sale_price": null,
     "sale_id": null,
-    "restock": "Očekáváme ve st.",
+    "restock": "Očekáváme dnes (18. 11. 2026)",
     "restock_date": "2026-11-18",
     "zero_since": "2026-11-11",
     "low": false,
     "promos": [],
-    "days_at_zero": 9
+    "days_at_zero": 10
    },
    "praha_liboc": {
     "state": "out_of_stock",
@@ -683,12 +684,12 @@
     "price": 57.9,
     "sale_price": null,
     "sale_id": null,
-    "restock": "Očekáváme ve st.",
+    "restock": "Očekáváme dnes (18. 11. 2026)",
     "restock_date": "2026-11-18",
     "zero_since": "2026-11-11",
     "low": false,
     "promos": [],
-    "days_at_zero": 10
+    "days_at_zero": 11
    },
    "horni_pocernice": {
     "state": "out_of_stock",
@@ -701,7 +702,7 @@
     "zero_since": "2026-11-11",
     "low": false,
     "promos": [],
-    "days_at_zero": 10
+    "days_at_zero": 11
    },
    "brno": {
     "state": "not_listed",
@@ -731,7 +732,7 @@
   "1454635": {
    "chrastany": {
     "state": "in_stock",
-    "units": 31,
+    "units": 27,
     "price": 57.9,
     "sale_price": null,
     "sale_id": null,
@@ -747,16 +748,16 @@
     "price": 57.9,
     "sale_price": null,
     "sale_id": null,
-    "restock": "Očekáváme ve st.",
+    "restock": "Očekáváme dnes (18. 11. 2026)",
     "restock_date": "2026-11-18",
     "zero_since": "2026-11-11",
     "low": false,
     "promos": [],
-    "days_at_zero": 9
+    "days_at_zero": 10
    },
    "horni_pocernice": {
     "state": "in_stock",
-    "units": 4,
+    "units": 2,
     "price": 57.9,
     "sale_price": null,
     "sale_id": null,
@@ -777,7 +778,7 @@
     "zero_since": "2026-11-11",
     "low": false,
     "promos": [],
-    "days_at_zero": 24
+    "days_at_zero": 25
    },
    "ostrava": {
     "state": "out_of_stock",
@@ -790,7 +791,7 @@
     "zero_since": "2026-11-11",
     "low": false,
     "promos": [],
-    "days_at_zero": 13
+    "days_at_zero": 14
    }
   },
   "1474799": {
@@ -824,12 +825,12 @@
     "price": 164.9,
     "sale_price": null,
     "sale_id": null,
-    "restock": "Očekáváme ve st.",
+    "restock": "Očekáváme dnes (18. 11. 2026)",
     "restock_date": "2026-11-18",
     "zero_since": "2026-11-13",
     "low": false,
     "promos": [],
-    "days_at_zero": 5
+    "days_at_zero": 6
    },
    "brno": {
     "state": "not_listed",
@@ -957,7 +958,7 @@
    },
    "brno": {
     "state": "in_stock",
-    "units": 8,
+    "units": 7,
     "price": 154.9,
     "sale_price": null,
     "sale_id": null,
@@ -982,7 +983,7 @@
   }
  },
  "zone_in_stock": {
-  "chrastany": 12,
+  "chrastany": 11,
   "praha_liboc": 9,
   "horni_pocernice": 11,
   "brno": 5,
