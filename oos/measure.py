@@ -219,7 +219,12 @@ def measure(cfg: dict, base: str) -> dict:
                 nl = [pid for pid in every if pid not in ids]
                 det = sess.details(zero + nl) if (zero or nl) else {}
                 for pid in zero:
-                    products[pid]["delisted"] = delisting_evidence(rules, st.get(pid), det.get(pid))
+                    # Rohlik omits the stock record for products a warehouse does not offer (confirmed
+                    # 18.11.2026: delisted Brno 1454635 and never-carried SKUs both come back empty,
+                    # genuine OOS comes back with "Vyprodáno"). Classify confirms it over two runs.
+                    products[pid]["delisted"] = (delisting_evidence(rules, st.get(pid), det.get(pid))
+                                                 or ("no stock record returned for this warehouse"
+                                                     if products[pid]["missing"] else None))
                 probes = {}
                 for pid in nl:
                     r = st.get(pid) or {}

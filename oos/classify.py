@@ -86,7 +86,11 @@ def classify(cfg: dict, meas: dict, prev_state: dict | None, today: date) -> dic
                                  listed_since=before.get("listed_since") or today.isoformat())
                 else:
                     m = zr["products"][int(sid)]
-                    if m["units"] == 0 and m.get("delisted"):
+                    # a missing stock record is only trusted when the previous run saw it too,
+                    # so one flaky API response never delists anything
+                    seen_before = (before.get("delisted") or before.get("missing")
+                                   or str(before.get("restock") or "").startswith("Not returned"))
+                    if m["units"] == 0 and m.get("delisted") and (not m.get("missing") or seen_before):
                         # Rohlik itself says the product is no longer offered here: not listed,
                         # out of the availability denominator, no price. Footprint stays as is
                         # until the baseline is updated deliberately.
@@ -103,6 +107,8 @@ def classify(cfg: dict, meas: dict, prev_state: dict | None, today: date) -> dic
                         p["state"] = OOS
                         p["restock"] = restock_text(m["reason"], m["restock_date"], today)
                         p["restock_date"] = restock_iso(m["reason"], m["restock_date"], today)
+                        if m.get("missing"):
+                            p["missing"] = True
                         p["zero_since"] = (before.get("zero_since") if before.get("state") == OOS
                                            else None) or today.isoformat()
                 positions[sid][k] = p
