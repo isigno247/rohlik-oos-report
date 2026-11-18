@@ -69,6 +69,17 @@ class Session:
         except Exception as e:
             log.warning("homepage warm-up failed: %s", e)
 
+    def resolve(self, query: str) -> int:
+        """Which warehouse Rohlik assigns to an address - read only, nothing is pinned to the session."""
+        res = self._req("GET", "/api/v3/address/autocomplete", {"query": query}, retries=2)
+        sugg = res if isinstance(res, list) else (res or {}).get("data") or (res or {}).get("suggestions") or []
+        if not sugg:
+            raise ToolError(f"no address suggestion for '{query}'")
+        conf = self._req("POST", "/api/v4/address/autocomplete/confirm", body=sugg[0], retries=2)
+        if not conf or not conf.get("warehouseId"):
+            raise ToolError(f"address confirm returned no warehouse for '{query}'")
+        return int(conf["warehouseId"])
+
     def set_address(self, query: str) -> dict:
         res = self._req("GET", "/api/v3/address/autocomplete", {"query": query})
         sugg = res if isinstance(res, list) else (res or {}).get("data") or (res or {}).get("suggestions") or []

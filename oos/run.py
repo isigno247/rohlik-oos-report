@@ -15,7 +15,7 @@ from .alerts import detect, long_term, publish
 from .checks import run_checks
 from . import discover as disc
 from .classify import OOS, build_notes, classify, counts, new_state
-from .measure import base_url, run_measure
+from .measure import Session, base_url, run_measure
 from .report2 import render
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -85,11 +85,33 @@ def main() -> int:
         (out_dir / name).write_text(html, encoding="utf-8")
         (out_dir / "latest.html").write_text(html, encoding="utf-8")
     events = detect(cfg, cls, prev)
+
+    # warehouse watch: addresses where Rohlik is expected to switch to a new warehouse (e.g. Opatovice).
+    # Alerts once, on the run the assigned warehouse first changes; never touches the report.
+    watch_f = ROOT / "state" / "watch" / f"{args.client}.json"
+    seen = json.loads(watch_f.read_text(encoding="utf-8")) if watch_f.exists() else {}
+    watch_hits = []
+    for w in cfg.get("watch_addresses") or []:
+        try:
+            s = Session(base_url())
+            s.warm()
+            wh = s.resolve(w["address_query"])
+        except Exception as e:                       # a failed watch never fails the run
+            log.warning("warehouse watch %s: %s", w["name"], e)
+            continue
+        log.info("warehouse watch %s: warehouse %s (expected %s)", w["name"], wh, w["expect_warehouse_id"])
+        if wh != int(w["expect_warehouse_id"]) and wh != seen.get(w["name"]):
+            watch_hits.append({"name": w["name"], "address": w["address_query"], "warehouse_id": wh,
+                               "was": seen.get(w["name"]) or int(w["expect_warehouse_id"])})
+        seen[w["name"]] = wh
+    watch_f.parent.mkdir(parents=True, exist_ok=True)
+    watch_f.write_text(json.dumps(seen, ensure_ascii=False, indent=1), encoding="utf-8")
     tot = counts(cfg, cls["positions"])
     ctx = {"total": {"oos": tot[OOS], "listed": tot["listed"], "avail": tot["avail"]},
            "prev_avail": counts(cfg, prev["positions"])["avail"] if prev and prev.get("positions") else None,
            "long": long_term(cfg, cls, events), "long_min": int(cfg.get("long_oos_threshold_days", 3)),
-           "weekly": now.weekday() == 0 and not args.no_report}       # Monday morning: weekly digest
+           "weekly": now.weekday() == 0 and not args.no_report,       # Monday morning: weekly digest
+           "watch": watch_hits}
     publish(ROOT, cfg, events, now.isoformat(timespec="minutes"), now.strftime("%d.%m.%Y %H:%M"), ctx)
     log.info("Alerts: %d new event(s)", len(events))
     st = new_state(cfg, cls, meas, today, meta["time_str"], checks)

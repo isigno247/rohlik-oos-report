@@ -140,7 +140,8 @@ def render_email(cfg: dict, events: list[dict], when_str: str, imgs: dict | None
     low = sorted([e for e in events if e["type"] == "low"], key=lambda e: (hot(e), e.get("units") or 0))
     gone = [e for e in events if e["type"] == "delisted"]
     new = [e for e in events if e["type"] == "listed"]
-    parts = []
+    watch = ctx.get("watch") or []
+    parts = [f"nový sklad Rohlíku: {w['name']}" for w in watch]
     if new:
         parts.append(f"{len(new)}× nově zalistováno")
     if gone:
@@ -218,6 +219,11 @@ def render_email(cfg: dict, events: list[dict], when_str: str, imgs: dict | None
          + _context(ctx) + '</td></tr><tr><td style="padding:0 22px 8px 22px">')
     restock = lambda e: (_chip(_dm(e.get("restock_date")), "#a86400", "#fff1d9") if e.get("restock_date")
                          else _chip("neuvedeno", "#6b737b", "#eef0f2"))
+    if watch:
+        h += h2("Nový sklad Rohlíku")
+        h += table(["Lokalita", "Sklad dříve", "Sklad nyní", "Další krok"],
+                   [[w["name"], w["was"], w["warehouse_id"],
+                     "Přidat zónu do configu a udělat onboarding footprintu"] for w in watch])
     if new:
         h += h2("Nově zalistováno")
         h += gtable(["Produkt", "Sklad", "Skladem"], new,
@@ -282,9 +288,10 @@ def publish(root: Path, cfg: dict, events: list[dict], now_iso: str, when_str: s
     f.write_text(json.dumps(hist, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     ctx = ctx or {}
     weekly = bool(ctx.get("weekly")) and bool(ctx.get("long"))
-    send = bool(events) or weekly
+    send = bool(events) or weekly or bool(ctx.get("watch"))
     latest = {"run_at": now_iso, "events_count": (len(events) or len(ctx.get("long") or [])) if send else 0,
-              "kind": "alert" if events else ("weekly" if weekly else "none"), "subject": "", "html": ""}
+              "kind": "alert" if (events or ctx.get("watch")) else ("weekly" if weekly else "none"),
+              "subject": "", "html": ""}
     if send:
         pf = d / "products.json"
         imgs = json.loads(pf.read_text(encoding="utf-8")) if pf.exists() else {}
