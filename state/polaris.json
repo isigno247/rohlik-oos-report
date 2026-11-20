@@ -1,6 +1,6 @@
 {
- "date": "2026-11-19",
- "measured_at": "14:45 CET",
+ "date": "2026-11-20",
+ "measured_at": "06:32 CET",
  "footprint": {
   "1423451": {
    "chrastany": true,
@@ -452,7 +452,7 @@
    },
    "brno": {
     "state": "in_stock",
-    "units": 10,
+    "units": 9,
     "price": 749.9,
     "sale_price": null,
     "sale_id": null,
@@ -561,7 +561,7 @@
     "zero_since": "2026-11-11",
     "low": false,
     "promos": [],
-    "days_at_zero": 14
+    "days_at_zero": 15
    },
    "horni_pocernice": {
     "state": "in_stock",
@@ -651,7 +651,7 @@
    },
    "ostrava": {
     "state": "in_stock",
-    "units": 34,
+    "units": 31,
     "price": 57.9,
     "sale_price": null,
     "sale_id": null,
@@ -674,7 +674,7 @@
     "zero_since": "2026-11-11",
     "low": false,
     "promos": [],
-    "days_at_zero": 11
+    "days_at_zero": 12
    },
    "praha_liboc": {
     "state": "out_of_stock",
@@ -687,7 +687,7 @@
     "zero_since": "2026-11-11",
     "low": false,
     "promos": [],
-    "days_at_zero": 12
+    "days_at_zero": 13
    },
    "horni_pocernice": {
     "state": "out_of_stock",
@@ -695,12 +695,12 @@
     "price": 57.9,
     "sale_price": null,
     "sale_id": null,
-    "restock": "Dočasně nedostupné.",
-    "restock_date": null,
+    "restock": "Očekáváme ve st.",
+    "restock_date": "2026-11-25",
     "zero_since": "2026-11-11",
     "low": false,
     "promos": [],
-    "days_at_zero": 12
+    "days_at_zero": 13
    },
    "brno": {
     "state": "not_listed",
@@ -730,7 +730,7 @@
   "1454635": {
    "chrastany": {
     "state": "in_stock",
-    "units": 9,
+    "units": 7,
     "price": 57.9,
     "sale_price": null,
     "sale_id": null,
@@ -751,7 +751,7 @@
     "zero_since": "2026-11-11",
     "low": false,
     "promos": [],
-    "days_at_zero": 11
+    "days_at_zero": 12
    },
    "horni_pocernice": {
     "state": "out_of_stock",
@@ -764,7 +764,7 @@
     "zero_since": "2026-11-19",
     "low": false,
     "promos": [],
-    "days_at_zero": 1
+    "days_at_zero": 2
    },
    "brno": {
     "state": "not_listed",
@@ -791,7 +791,7 @@
     "zero_since": "2026-11-11",
     "low": false,
     "promos": [],
-    "days_at_zero": 15
+    "days_at_zero": 16
    }
   },
   "1474799": {
@@ -859,7 +859,7 @@
   "1474800": {
    "chrastany": {
     "state": "in_stock",
-    "units": 11,
+    "units": 10,
     "price": 164.9,
     "sale_price": null,
     "sale_id": null,
@@ -1003,7 +1003,7 @@
    "verification": {
     "method": "web_session",
     "warehouse_id": 8791,
-    "zone_id": 157672
+    "zone_id": 157722
    },
    "canary": null
   },
