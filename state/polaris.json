@@ -1,6 +1,6 @@
 {
- "date": "2026-11-22",
- "measured_at": "06:27 CET",
+ "date": "2026-11-24",
+ "measured_at": "01:09 CET",
  "footprint": {
   "1423451": {
    "chrastany": true,
@@ -106,101 +106,173 @@
   "1423451": {
    "chrastany": {
     "state": "in_stock",
-    "units": 13,
+    "units": 10,
     "price": 429.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 343.92,
+    "sale_id": 15204894,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 343.92,
+      "orig": 429.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "praha_liboc": {
     "state": "in_stock",
     "units": 15,
     "price": 429.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 343.92,
+    "sale_id": 15204975,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 343.92,
+      "orig": 429.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "horni_pocernice": {
     "state": "in_stock",
-    "units": 8,
+    "units": 7,
     "price": 429.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 343.92,
+    "sale_id": 15205055,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 343.92,
+      "orig": 429.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "brno": {
     "state": "in_stock",
-    "units": 13,
+    "units": 12,
     "price": 429.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 343.92,
+    "sale_id": 15205015,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 343.92,
+      "orig": 429.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "ostrava": {
     "state": "in_stock",
     "units": 10,
     "price": 429.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 343.92,
+    "sale_id": 15204934,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 343.92,
+      "orig": 429.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    }
   },
   "1423452": {
    "chrastany": {
     "state": "in_stock",
-    "units": 18,
+    "units": 16,
     "price": 1299.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 1039.92,
+    "sale_id": 15204893,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 1039.92,
+      "orig": 1299.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "praha_liboc": {
     "state": "in_stock",
     "units": 7,
     "price": 1299.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 1039.92,
+    "sale_id": 15204974,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 1039.92,
+      "orig": 1299.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "horni_pocernice": {
     "state": "in_stock",
     "units": 3,
     "price": 1299.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 1039.92,
+    "sale_id": 15205054,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": true,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 1039.92,
+      "orig": 1299.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "brno": {
     "state": "not_listed",
@@ -232,37 +304,64 @@
     "state": "in_stock",
     "units": 2,
     "price": 1299.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 1039.92,
+    "sale_id": 15204892,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": true,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 1039.92,
+      "orig": 1299.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "praha_liboc": {
     "state": "in_stock",
-    "units": 6,
+    "units": 5,
     "price": 1299.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 1039.92,
+    "sale_id": 15204973,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
-    "low": false,
-    "promos": []
+    "low": true,
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 1039.92,
+      "orig": 1299.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "horni_pocernice": {
     "state": "in_stock",
     "units": 11,
     "price": 1299.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 1039.92,
+    "sale_id": 15205053,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 1039.92,
+      "orig": 1299.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "brno": {
     "state": "not_listed",
@@ -292,39 +391,66 @@
   "1423456": {
    "chrastany": {
     "state": "in_stock",
-    "units": 12,
+    "units": 11,
     "price": 1299.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 1039.92,
+    "sale_id": 15204891,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 1039.92,
+      "orig": 1299.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "praha_liboc": {
     "state": "in_stock",
     "units": 5,
     "price": 1299.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 1039.92,
+    "sale_id": 15204972,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": true,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 1039.92,
+      "orig": 1299.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "horni_pocernice": {
     "state": "in_stock",
     "units": 4,
     "price": 1299.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 1039.92,
+    "sale_id": 15205052,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": true,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 1039.92,
+      "orig": 1299.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "brno": {
     "state": "not_listed",
@@ -354,39 +480,66 @@
   "1423457": {
    "chrastany": {
     "state": "in_stock",
-    "units": 12,
+    "units": 11,
     "price": 709.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 567.92,
+    "sale_id": 15204890,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 567.92,
+      "orig": 709.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "praha_liboc": {
     "state": "in_stock",
     "units": 7,
     "price": 709.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 567.92,
+    "sale_id": 15204971,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 567.92,
+      "orig": 709.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "horni_pocernice": {
     "state": "in_stock",
     "units": 13,
     "price": 709.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 567.92,
+    "sale_id": 15205051,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 567.92,
+      "orig": 709.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "brno": {
     "state": "not_listed",
@@ -418,61 +571,106 @@
     "state": "in_stock",
     "units": 12,
     "price": 709.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 567.92,
+    "sale_id": 15204889,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 567.92,
+      "orig": 709.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "praha_liboc": {
     "state": "in_stock",
     "units": 14,
     "price": 709.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 567.92,
+    "sale_id": 15204970,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 567.92,
+      "orig": 709.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "horni_pocernice": {
     "state": "in_stock",
     "units": 50,
     "price": 709.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 567.92,
+    "sale_id": 15205050,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 567.92,
+      "orig": 709.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "brno": {
     "state": "in_stock",
-    "units": 9,
+    "units": 8,
     "price": 749.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 599.92,
+    "sale_id": 15205010,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 599.92,
+      "orig": 749.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "ostrava": {
     "state": "in_stock",
     "units": 6,
     "price": 749.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 599.92,
+    "sale_id": 15204929,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 599.92,
+      "orig": 749.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    }
   },
   "1423448": {
@@ -480,61 +678,106 @@
     "state": "in_stock",
     "units": 11,
     "price": 429.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 343.92,
+    "sale_id": 15204895,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 343.92,
+      "orig": 429.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "praha_liboc": {
     "state": "in_stock",
-    "units": 11,
+    "units": 8,
     "price": 429.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 343.92,
+    "sale_id": 15204976,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 343.92,
+      "orig": 429.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "horni_pocernice": {
     "state": "in_stock",
-    "units": 19,
+    "units": 18,
     "price": 429.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 343.92,
+    "sale_id": 15205056,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 343.92,
+      "orig": 429.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "brno": {
     "state": "in_stock",
-    "units": 9,
+    "units": 8,
     "price": 429.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 343.92,
+    "sale_id": 15205016,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 343.92,
+      "orig": 429.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "ostrava": {
     "state": "in_stock",
     "units": 10,
     "price": 429.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 343.92,
+    "sale_id": 15204936,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 343.92,
+      "orig": 429.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    }
   },
   "1467999": {
@@ -542,39 +785,66 @@
     "state": "out_of_stock",
     "units": 0,
     "price": 1299.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 1039.92,
+    "sale_id": 15204878,
     "restock": "Dočasně nedostupné.",
     "restock_date": null,
     "zero_since": "2026-11-21",
     "low": false,
-    "promos": [],
-    "days_at_zero": 2
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 1039.92,
+      "orig": 1299.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ],
+    "days_at_zero": 4
    },
    "praha_liboc": {
     "state": "out_of_stock",
     "units": 0,
     "price": 1299.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 1039.92,
+    "sale_id": 15204959,
     "restock": "Dočasně nedostupné.",
     "restock_date": null,
     "zero_since": "2026-11-11",
     "low": false,
-    "promos": [],
-    "days_at_zero": 17
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 1039.92,
+      "orig": 1299.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ],
+    "days_at_zero": 19
    },
    "horni_pocernice": {
     "state": "in_stock",
     "units": 1,
     "price": 1299.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 1039.92,
+    "sale_id": 15205039,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": true,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 1039.92,
+      "orig": 1299.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "brno": {
     "state": "not_listed",
@@ -604,104 +874,152 @@
   "1454631": {
    "chrastany": {
     "state": "in_stock",
-    "units": 47,
+    "units": 40,
     "price": 57.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 46.32,
+    "sale_id": 15204887,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 46.32,
+      "orig": 57.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "praha_liboc": {
     "state": "in_stock",
     "units": 50,
     "price": 57.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 46.32,
+    "sale_id": 15204968,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 46.32,
+      "orig": 57.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "horni_pocernice": {
     "state": "in_stock",
     "units": 50,
     "price": 57.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 46.32,
+    "sale_id": 15205048,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 46.32,
+      "orig": 57.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "brno": {
     "state": "in_stock",
     "units": 50,
     "price": 57.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 46.32,
+    "sale_id": 15205008,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 46.32,
+      "orig": 57.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "ostrava": {
     "state": "in_stock",
     "units": 50,
     "price": 57.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 46.32,
+    "sale_id": 15204927,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 46.32,
+      "orig": 57.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    }
   },
   "1454634": {
    "chrastany": {
     "state": "out_of_stock",
     "units": 0,
-    "price": 57.9,
+    "price": null,
     "sale_price": null,
     "sale_id": null,
-    "restock": "Očekáváme ve st.",
-    "restock_date": "2026-11-25",
-    "zero_since": "2026-11-11",
-    "low": false,
-    "promos": [],
-    "days_at_zero": 14
-   },
-   "praha_liboc": {
-    "state": "out_of_stock",
-    "units": 0,
-    "price": 57.9,
-    "sale_price": null,
-    "sale_id": null,
-    "restock": "Dočasně nedostupné.",
+    "restock": "Not returned for this warehouse today (possible delisting)",
     "restock_date": null,
     "zero_since": "2026-11-11",
     "low": false,
     "promos": [],
-    "days_at_zero": 15
+    "missing": true,
+    "days_at_zero": 16
+   },
+   "praha_liboc": {
+    "state": "out_of_stock",
+    "units": 0,
+    "price": null,
+    "sale_price": null,
+    "sale_id": null,
+    "restock": "Not returned for this warehouse today (possible delisting)",
+    "restock_date": null,
+    "zero_since": "2026-11-11",
+    "low": false,
+    "promos": [],
+    "missing": true,
+    "days_at_zero": 17
    },
    "horni_pocernice": {
     "state": "out_of_stock",
     "units": 0,
-    "price": 57.9,
+    "price": null,
     "sale_price": null,
     "sale_id": null,
-    "restock": "Očekáváme ve st.",
-    "restock_date": "2026-11-25",
+    "restock": "Not returned for this warehouse today (possible delisting)",
+    "restock_date": null,
     "zero_since": "2026-11-11",
     "low": false,
     "promos": [],
-    "days_at_zero": 15
+    "missing": true,
+    "days_at_zero": 17
    },
    "brno": {
     "state": "not_listed",
@@ -733,40 +1051,67 @@
     "state": "out_of_stock",
     "units": 0,
     "price": 57.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 46.32,
+    "sale_id": 15204884,
     "restock": "Očekáváme ve st.",
     "restock_date": "2026-11-25",
     "zero_since": "2026-11-21",
     "low": false,
-    "promos": [],
-    "days_at_zero": 2
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 46.32,
+      "orig": 57.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ],
+    "days_at_zero": 4
    },
    "praha_liboc": {
     "state": "out_of_stock",
     "units": 0,
     "price": 57.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 46.32,
+    "sale_id": 15204965,
     "restock": "Dočasně nedostupné.",
     "restock_date": null,
     "zero_since": "2026-11-11",
     "low": false,
-    "promos": [],
-    "days_at_zero": 14
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 46.32,
+      "orig": 57.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ],
+    "days_at_zero": 16
    },
    "horni_pocernice": {
     "state": "out_of_stock",
     "units": 0,
     "price": 57.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 46.32,
+    "sale_id": 15205045,
     "restock": "Očekáváme ve st.",
     "restock_date": "2026-11-25",
     "zero_since": "2026-11-19",
     "low": false,
-    "promos": [],
-    "days_at_zero": 4
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 46.32,
+      "orig": 57.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ],
+    "days_at_zero": 6
    },
    "brno": {
     "state": "not_listed",
@@ -786,52 +1131,88 @@
     "state": "out_of_stock",
     "units": 0,
     "price": 57.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 46.32,
+    "sale_id": 15204924,
     "restock": "Dočasně nedostupné.",
     "restock_date": null,
     "zero_since": "2026-11-11",
     "low": false,
-    "promos": [],
-    "days_at_zero": 18
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 46.32,
+      "orig": 57.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ],
+    "days_at_zero": 20
    }
   },
   "1474799": {
    "chrastany": {
     "state": "in_stock",
-    "units": 14,
+    "units": 13,
     "price": 164.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 131.92,
+    "sale_id": 15204875,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 131.92,
+      "orig": 164.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "praha_liboc": {
     "state": "in_stock",
-    "units": 10,
+    "units": 9,
     "price": 164.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 131.92,
+    "sale_id": 15204956,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 131.92,
+      "orig": 164.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "horni_pocernice": {
     "state": "in_stock",
     "units": 11,
     "price": 164.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 131.92,
+    "sale_id": 15205036,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 131.92,
+      "orig": 164.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "brno": {
     "state": "not_listed",
@@ -849,51 +1230,87 @@
     "state": "in_stock",
     "units": 17,
     "price": 164.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 131.92,
+    "sale_id": 15204915,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 131.92,
+      "orig": 164.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    }
   },
   "1474800": {
    "chrastany": {
     "state": "in_stock",
-    "units": 10,
+    "units": 9,
     "price": 164.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 131.92,
+    "sale_id": 15204874,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 131.92,
+      "orig": 164.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "praha_liboc": {
     "state": "in_stock",
-    "units": 11,
+    "units": 10,
     "price": 164.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 131.92,
+    "sale_id": 15204955,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 131.92,
+      "orig": 164.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "horni_pocernice": {
     "state": "in_stock",
     "units": 9,
     "price": 164.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 131.92,
+    "sale_id": 15205035,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 131.92,
+      "orig": 164.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "brno": {
     "state": "not_listed",
@@ -959,15 +1376,24 @@
    },
    "brno": {
     "state": "in_stock",
-    "units": 20,
+    "units": 18,
     "price": 154.9,
-    "sale_price": null,
-    "sale_id": null,
+    "sale_price": 123.92,
+    "sale_id": 15204994,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
     "low": false,
-    "promos": []
+    "promos": [
+     {
+      "type": "multipack",
+      "price": 123.92,
+      "orig": 154.9,
+      "pct": 20,
+      "trigger": 2,
+      "till": "2026-11-30"
+     }
+    ]
    },
    "ostrava": {
     "state": "not_listed",
