@@ -17,6 +17,8 @@ import gzip
 import json
 import logging
 import re
+import time
+import urllib.error
 import urllib.request
 from datetime import date
 from pathlib import Path
@@ -29,8 +31,15 @@ PRODUCT_URL = re.compile(r"/(\d{5,9})-([^/?#]+)")
 
 
 def _get(url: str) -> str:
-    with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": UA}), timeout=60) as r:
-        raw = r.read()
+    for attempt in range(1, 4):                      # Rohlik answers bursts with HTTP 429: back off and retry
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": UA}), timeout=60) as r:
+                raw = r.read()
+            break
+        except urllib.error.HTTPError as e:
+            if e.code != 429 or attempt == 3:
+                raise
+            time.sleep(30 * attempt)
     if url.endswith(".gz") or raw[:2] == b"\x1f\x8b":
         raw = gzip.decompress(raw)
     return raw.decode("utf-8", "replace")

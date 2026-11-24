@@ -58,6 +58,13 @@ class Session:
                 last = f"HTTP {e.code} on {method} {path}"
                 if e.code < 500 and e.code != 429:
                     break
+                if e.code == 429:                # rate limited: wait as told (or 15/30/45 s), then retry
+                    try:
+                        wait = min(int(e.headers.get("Retry-After") or 0), 90)
+                    except ValueError:
+                        wait = 0
+                    time.sleep(wait or 15 * attempt)
+                    continue
             except Exception as e:  # network blips
                 last = f"{type(e).__name__} on {method} {path}: {e}"
             time.sleep(2 * attempt)
@@ -196,7 +203,9 @@ def measure(cfg: dict, base: str) -> dict:
 
     result = {"zones": {}, "restored": True}   # nothing to restore: no account is used
     seen_wh = {}
-    for z in zones:
+    for i, z in enumerate(zones):
+        if i:
+            time.sleep(float(os.environ.get("OOS_ZONE_PAUSE", "3")))   # be gentle: Rohlik rate-limits bursts
         key = z["key"]
         zr = {"status": "FAILED", "verification": None, "canary": None, "products": {},
               "probes": {}, "raw": {}}

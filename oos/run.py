@@ -5,7 +5,7 @@ import argparse
 import json
 import logging
 import sys
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -29,6 +29,8 @@ def main() -> int:
                     help="afternoon run: update state, dashboard data and alerts, keep the morning report")
     ap.add_argument("--discover", action="store_true",
                     help="run the catalogue check for new SKUs now (otherwise Monday mornings)")
+    ap.add_argument("--skip-if-done", action="store_true",
+                    help="backup morning run: do nothing if today's morning run already happened")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     log = logging.getLogger("oos")
@@ -36,6 +38,10 @@ def main() -> int:
     cfg = yaml.safe_load((ROOT / "config" / f"{args.client}.yml").read_text(encoding="utf-8"))
     state_path = ROOT / "state" / f"{args.client}.json"
     prev = json.loads(state_path.read_text(encoding="utf-8")) if state_path.exists() else None
+    if args.skip_if_done and (ROOT / "state" / "raw" / args.client /
+                              f"{datetime.now(TZ).date().isoformat()}_am.json").exists():
+        log.info("morning run already done today - backup run skipped")
+        return 0
 
     meas = run_measure(cfg)                       # one uninterrupted pass, restore in finally
     now = datetime.now(TZ)
@@ -47,8 +53,11 @@ def main() -> int:
     # weekly catalogue check for brand-new SKUs; the latest result is shown every day until handled
     slug = cfg["report_slug"]
     dcfg = cfg.get("discovery") or {}
-    if args.discover or (not args.no_report and dcfg.get("enabled", True)
-                         and now.weekday() == int(dcfg.get("weekday", 0))):
+    last = disc.load(ROOT, slug) or {}
+    wd, due_wd = now.weekday(), int(dcfg.get("weekday", 0))
+    retry = (last.get("status") != "ok" and 0 < wd - due_wd <= 2          # Monday failed (e.g. HTTP 429):
+             and (today - date.fromisoformat(last.get("checked", "2000-01-01"))).days <= 2)  # retry Tue/Wed
+    if args.discover or (not args.no_report and dcfg.get("enabled", True) and (wd == due_wd or retry)):
         fresh = disc.discover(cfg, base_url(), today)
         fresh["alerted"] = (disc.load(ROOT, slug) or {}).get("alerted", [])   # alert each SKU only once
         disc.save(ROOT, slug, fresh)
