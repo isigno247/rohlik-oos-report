@@ -1,8 +1,8 @@
 {
- "checked": "2026-11-23",
- "status": "not_checked",
- "source": null,
- "note": "HTTPError: HTTP Error 429: Too Many Requests",
+ "checked": "2026-11-24",
+ "status": "ok",
+ "source": "Rohlik sitemap, 20438 product URLs",
+ "note": "",
  "candidates": [],
  "other_brand": [],
  "alerted": []
