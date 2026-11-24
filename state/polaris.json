@@ -1,6 +1,6 @@
 {
  "date": "2026-11-24",
- "measured_at": "16:11 CET",
+ "measured_at": "23:48 CET",
  "footprint": {
   "1423451": {
    "chrastany": true,
@@ -169,7 +169,7 @@
    },
    "brno": {
     "state": "in_stock",
-    "units": 24,
+    "units": 28,
     "price": 429.9,
     "sale_price": 343.92,
     "sale_id": 15205015,
@@ -391,7 +391,7 @@
   "1423456": {
    "chrastany": {
     "state": "in_stock",
-    "units": 10,
+    "units": 9,
     "price": 1299.9,
     "sale_price": 1039.92,
     "sale_id": 15204891,
@@ -433,7 +433,7 @@
    },
    "horni_pocernice": {
     "state": "in_stock",
-    "units": 4,
+    "units": 2,
     "price": 1299.9,
     "sale_price": 1039.92,
     "sale_id": 15205052,
@@ -653,14 +653,14 @@
    },
    "ostrava": {
     "state": "in_stock",
-    "units": 6,
+    "units": 2,
     "price": 749.9,
     "sale_price": 599.92,
     "sale_id": 15204929,
     "restock": null,
     "restock_date": null,
     "zero_since": null,
-    "low": false,
+    "low": true,
     "promos": [
      {
       "type": "multipack",
@@ -874,7 +874,7 @@
   "1454631": {
    "chrastany": {
     "state": "in_stock",
-    "units": 33,
+    "units": 28,
     "price": 57.9,
     "sale_price": 46.32,
     "sale_id": 15204887,
@@ -916,7 +916,7 @@
    },
    "horni_pocernice": {
     "state": "in_stock",
-    "units": 49,
+    "units": 43,
     "price": 57.9,
     "sale_price": 46.32,
     "sale_id": 15205048,
@@ -1376,7 +1376,7 @@
    },
    "brno": {
     "state": "in_stock",
-    "units": 18,
+    "units": 23,
     "price": 154.9,
     "sale_price": 123.92,
     "sale_id": 15204994,
