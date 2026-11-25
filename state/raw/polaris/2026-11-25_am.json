@@ -1,0 +1,499 @@
+{
+ "chrastany": {
+  "1454634": {
+   "stock": null,
+   "product": null
+  },
+  "1454635": {
+   "stock": {
+    "productId": 1454635,
+    "warehouseId": 8801,
+    "packageInfo": {
+     "amount": 0.4,
+     "unit": "kg"
+    },
+    "preorderEnabled": false,
+    "maxBasketAmount": 0,
+    "maxBasketAmountReason": "AVAILABLE",
+    "unavailabilityReason": "Vyprodáno. Očekáváme dnes.",
+    "deliveryRestriction": null,
+    "expectedReplenishment": null,
+    "availabilityDimension": 0,
+    "shelfLife": null,
+    "billablePackaging": null,
+    "tooltips": [],
+    "sales": [
+     {
+      "id": 15204884,
+      "amount": 0,
+      "unlimitedAmount": true,
+      "shelfLife": null
+     }
+    ],
+    "freshness": null,
+    "premiumOnly": false,
+    "inStock": false
+   },
+   "product": {
+    "id": 1454635,
+    "name": "Polaris Single Protein Paté konzerva pro psy krůtí",
+    "slug": "polaris-single-protein-pate-konzerva-pro-psy-kruti",
+    "mainCategoryId": 300124183,
+    "unit": "kg",
+    "textualAmount": "400 g",
+    "badges": [],
+    "archived": false,
+    "premiumOnly": false,
+    "brand": "Polaris",
+    "brandPageLink": null,
+    "brandPageDeeplink": null,
+    "images": [
+     "https://cdn.rohlik.cz/images/grocery/products/1454635/1454635-1702383507828.jpg"
+    ],
+    "countries": [
+     {
+      "name": "Holandsko",
+      "nameId": "holandsko",
+      "code": "NL"
+     }
+    ],
+    "canBeFavorite": true,
+    "canBeRated": true,
+    "information": [],
+    "image3dData": null,
+    "adviceForSafeUse": null,
+    "countryOfOriginFlagIcon": null,
+    "productStory": null,
+    "filters": [
+     {
+      "type": "BRAND",
+      "slug": "znacka",
+      "values": [
+       {
+        "name": "Polaris",
+        "slug": "polaris"
+       }
+      ]
+     }
+    ],
+    "weightedItem": false,
+    "packageRatio": null,
+    "sellerId": 1,
+    "flag": null,
+    "attachments": []
+   }
+  },
+  "1474802": {
+   "stock": null,
+   "product": null
+  }
+ },
+ "praha_liboc": {
+  "1467999": {
+   "stock": {
+    "productId": 1467999,
+    "warehouseId": 8791,
+    "packageInfo": {
+     "amount": 12.0,
+     "unit": "kg"
+    },
+    "preorderEnabled": false,
+    "maxBasketAmount": 0,
+    "maxBasketAmountReason": "AVAILABLE",
+    "unavailabilityReason": "Dočasně nedostupné.",
+    "deliveryRestriction": null,
+    "expectedReplenishment": null,
+    "availabilityDimension": 0,
+    "shelfLife": null,
+    "billablePackaging": null,
+    "tooltips": [],
+    "sales": [
+     {
+      "id": 15204959,
+      "amount": 0,
+      "unlimitedAmount": true,
+      "shelfLife": null
+     }
+    ],
+    "freshness": null,
+    "premiumOnly": false,
+    "inStock": false
+   },
+   "product": {
+    "id": 1467999,
+    "name": "Polaris All Breed bezobilné granule s čerstvým jehněčím a rýží pro psy",
+    "slug": "polaris-all-breed-bezobilne-granule-s-cerstvym-jehnecim-a-ryzi-pro-psy",
+    "mainCategoryId": 300112879,
+    "unit": "kg",
+    "textualAmount": "12 kg",
+    "badges": [],
+    "archived": false,
+    "premiumOnly": false,
+    "brand": "Polaris",
+    "brandPageLink": null,
+    "brandPageDeeplink": null,
+    "images": [
+     "https://cdn.rohlik.cz/images/grocery/products/1467999/1467999-1737375052502.jpg"
+    ],
+    "countries": [
+     {
+      "name": "Česká republika",
+      "nameId": "ceska-republika",
+      "code": "CZ"
+     }
+    ],
+    "canBeFavorite": true,
+    "canBeRated": true,
+    "information": [],
+    "image3dData": null,
+    "adviceForSafeUse": null,
+    "countryOfOriginFlagIcon": "https://cdn.rohlik.cz/images/countryFlags/cz.svg",
+    "productStory": null,
+    "filters": [
+     {
+      "type": "BRAND",
+      "slug": "znacka",
+      "values": [
+       {
+        "name": "Polaris",
+        "slug": "polaris"
+       }
+      ]
+     }
+    ],
+    "weightedItem": false,
+    "packageRatio": null,
+    "sellerId": 1,
+    "flag": "cz",
+    "attachments": []
+   }
+  },
+  "1454634": {
+   "stock": null,
+   "product": null
+  },
+  "1454635": {
+   "stock": {
+    "productId": 1454635,
+    "warehouseId": 8791,
+    "packageInfo": {
+     "amount": 0.4,
+     "unit": "kg"
+    },
+    "preorderEnabled": false,
+    "maxBasketAmount": 0,
+    "maxBasketAmountReason": "AVAILABLE",
+    "unavailabilityReason": "Dočasně nedostupné.",
+    "deliveryRestriction": null,
+    "expectedReplenishment": null,
+    "availabilityDimension": 0,
+    "shelfLife": null,
+    "billablePackaging": null,
+    "tooltips": [],
+    "sales": [
+     {
+      "id": 15204965,
+      "amount": 0,
+      "unlimitedAmount": true,
+      "shelfLife": null
+     }
+    ],
+    "freshness": null,
+    "premiumOnly": false,
+    "inStock": false
+   },
+   "product": {
+    "id": 1454635,
+    "name": "Polaris Single Protein Paté konzerva pro psy krůtí",
+    "slug": "polaris-single-protein-pate-konzerva-pro-psy-kruti",
+    "mainCategoryId": 300124183,
+    "unit": "kg",
+    "textualAmount": "400 g",
+    "badges": [],
+    "archived": false,
+    "premiumOnly": false,
+    "brand": "Polaris",
+    "brandPageLink": null,
+    "brandPageDeeplink": null,
+    "images": [
+     "https://cdn.rohlik.cz/images/grocery/products/1454635/1454635-1702383507828.jpg"
+    ],
+    "countries": [
+     {
+      "name": "Holandsko",
+      "nameId": "holandsko",
+      "code": "NL"
+     }
+    ],
+    "canBeFavorite": true,
+    "canBeRated": true,
+    "information": [],
+    "image3dData": null,
+    "adviceForSafeUse": null,
+    "countryOfOriginFlagIcon": null,
+    "productStory": null,
+    "filters": [
+     {
+      "type": "BRAND",
+      "slug": "znacka",
+      "values": [
+       {
+        "name": "Polaris",
+        "slug": "polaris"
+       }
+      ]
+     }
+    ],
+    "weightedItem": false,
+    "packageRatio": null,
+    "sellerId": 1,
+    "flag": null,
+    "attachments": []
+   }
+  },
+  "1474802": {
+   "stock": null,
+   "product": null
+  }
+ },
+ "horni_pocernice": {
+  "1454634": {
+   "stock": null,
+   "product": null
+  },
+  "1454635": {
+   "stock": {
+    "productId": 1454635,
+    "warehouseId": 8799,
+    "packageInfo": {
+     "amount": 0.4,
+     "unit": "kg"
+    },
+    "preorderEnabled": false,
+    "maxBasketAmount": 0,
+    "maxBasketAmountReason": "AVAILABLE",
+    "unavailabilityReason": "Vyprodáno. Očekáváme dnes.",
+    "deliveryRestriction": null,
+    "expectedReplenishment": null,
+    "availabilityDimension": 0,
+    "shelfLife": null,
+    "billablePackaging": null,
+    "tooltips": [],
+    "sales": [
+     {
+      "id": 15205045,
+      "amount": 0,
+      "unlimitedAmount": true,
+      "shelfLife": null
+     }
+    ],
+    "freshness": null,
+    "premiumOnly": false,
+    "inStock": false
+   },
+   "product": {
+    "id": 1454635,
+    "name": "Polaris Single Protein Paté konzerva pro psy krůtí",
+    "slug": "polaris-single-protein-pate-konzerva-pro-psy-kruti",
+    "mainCategoryId": 300124183,
+    "unit": "kg",
+    "textualAmount": "400 g",
+    "badges": [],
+    "archived": false,
+    "premiumOnly": false,
+    "brand": "Polaris",
+    "brandPageLink": null,
+    "brandPageDeeplink": null,
+    "images": [
+     "https://cdn.rohlik.cz/images/grocery/products/1454635/1454635-1702383507828.jpg"
+    ],
+    "countries": [
+     {
+      "name": "Holandsko",
+      "nameId": "holandsko",
+      "code": "NL"
+     }
+    ],
+    "canBeFavorite": true,
+    "canBeRated": true,
+    "information": [],
+    "image3dData": null,
+    "adviceForSafeUse": null,
+    "countryOfOriginFlagIcon": null,
+    "productStory": null,
+    "filters": [
+     {
+      "type": "BRAND",
+      "slug": "znacka",
+      "values": [
+       {
+        "name": "Polaris",
+        "slug": "polaris"
+       }
+      ]
+     }
+    ],
+    "weightedItem": false,
+    "packageRatio": null,
+    "sellerId": 1,
+    "flag": null,
+    "attachments": []
+   }
+  },
+  "1474802": {
+   "stock": null,
+   "product": null
+  }
+ },
+ "brno": {
+  "1454635": {
+   "stock": null,
+   "product": null
+  },
+  "1423452": {
+   "stock": null,
+   "product": null
+  },
+  "1423454": {
+   "stock": null,
+   "product": null
+  },
+  "1423456": {
+   "stock": null,
+   "product": null
+  },
+  "1423457": {
+   "stock": null,
+   "product": null
+  },
+  "1467999": {
+   "stock": null,
+   "product": null
+  },
+  "1454634": {
+   "stock": null,
+   "product": null
+  },
+  "1474799": {
+   "stock": null,
+   "product": null
+  },
+  "1474800": {
+   "stock": null,
+   "product": null
+  }
+ },
+ "ostrava": {
+  "1454635": {
+   "stock": {
+    "productId": 1454635,
+    "warehouseId": 8802,
+    "packageInfo": {
+     "amount": 0.4,
+     "unit": "kg"
+    },
+    "preorderEnabled": false,
+    "maxBasketAmount": 0,
+    "maxBasketAmountReason": "AVAILABLE",
+    "unavailabilityReason": "Dočasně nedostupné.",
+    "deliveryRestriction": null,
+    "expectedReplenishment": null,
+    "availabilityDimension": 1,
+    "shelfLife": null,
+    "billablePackaging": null,
+    "tooltips": [],
+    "sales": [
+     {
+      "id": 15204924,
+      "amount": 0,
+      "unlimitedAmount": true,
+      "shelfLife": null
+     }
+    ],
+    "freshness": null,
+    "premiumOnly": false,
+    "inStock": false
+   },
+   "product": {
+    "id": 1454635,
+    "name": "Polaris Single Protein Paté konzerva pro psy krůtí",
+    "slug": "polaris-single-protein-pate-konzerva-pro-psy-kruti",
+    "mainCategoryId": 300124183,
+    "unit": "kg",
+    "textualAmount": "400 g",
+    "badges": [],
+    "archived": false,
+    "premiumOnly": false,
+    "brand": "Polaris",
+    "brandPageLink": null,
+    "brandPageDeeplink": null,
+    "images": [
+     "https://cdn.rohlik.cz/images/grocery/products/1454635/1454635-1702383507828.jpg"
+    ],
+    "countries": [
+     {
+      "name": "Holandsko",
+      "nameId": "holandsko",
+      "code": "NL"
+     }
+    ],
+    "canBeFavorite": true,
+    "canBeRated": true,
+    "information": [],
+    "image3dData": null,
+    "adviceForSafeUse": null,
+    "countryOfOriginFlagIcon": null,
+    "productStory": null,
+    "filters": [
+     {
+      "type": "BRAND",
+      "slug": "znacka",
+      "values": [
+       {
+        "name": "Polaris",
+        "slug": "polaris"
+       }
+      ]
+     }
+    ],
+    "weightedItem": false,
+    "packageRatio": null,
+    "sellerId": 1,
+    "flag": null,
+    "attachments": []
+   }
+  },
+  "1423452": {
+   "stock": null,
+   "product": null
+  },
+  "1423454": {
+   "stock": null,
+   "product": null
+  },
+  "1423456": {
+   "stock": null,
+   "product": null
+  },
+  "1423457": {
+   "stock": null,
+   "product": null
+  },
+  "1467999": {
+   "stock": null,
+   "product": null
+  },
+  "1454634": {
+   "stock": null,
+   "product": null
+  },
+  "1474800": {
+   "stock": null,
+   "product": null
+  },
+  "1474802": {
+   "stock": null,
+   "product": null
+  }
+ }
+}
